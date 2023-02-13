@@ -10,7 +10,7 @@ export default async (app, channel) => {
 
     // API ENDPOINT NOT FOUND
     app.use((req, res, next) => {
-        const error = new Error("API endpoint doesn't exist");
+        const error = new Error("API endpoint doesn't exist!");
         error.status = 404;
         next(error);
     });
