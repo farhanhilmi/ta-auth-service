@@ -6,7 +6,7 @@ export default async (app, channel) => {
     app.use(express.json());
     // app.use(cors())
 
-    app.use('/api/', Routes(channel));
+    app.use(Routes(channel));
 
     // API ENDPOINT NOT FOUND
     app.use((req, res, next) => {
