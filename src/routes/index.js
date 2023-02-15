@@ -1,12 +1,21 @@
 import { Router } from 'express';
 
-import Users from '../api/users.js';
+import TestApi from '../api/test-api.js';
+import { UsersController } from '../api/users.js';
 
 const Routes = (channel) => {
     const router = Router();
-    const controller = new Users(channel);
+    const controller = new TestApi(channel);
+    const userController = new UsersController(channel);
 
-    router.get('/', controller.testApi.bind(controller));
+    router.get('/', userController.getUser.bind(userController));
+    router.post('/register', userController.register.bind(userController));
+    router.post('/login', userController.login.bind(userController));
+
+    // TESTING ROUTE
+    router.get('/test', controller.testApi.bind(controller));
+    router.post('/add', controller.testApiPost.bind(controller));
+
     return router;
 };
 
