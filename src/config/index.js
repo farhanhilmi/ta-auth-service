@@ -5,6 +5,7 @@ dotenv.config();
 const {
     APP_NAME,
     MONGODB_URI,
+    DSN_SENTRY,
     PORT,
     REFRESH_TOKEN_PRIVATE_KEY,
     ACCESS_TOKEN_PRIVATE_KEY,
@@ -42,6 +43,7 @@ const config = {
         refresh: REFRESH_TOKEN_EXPIRES_IN,
     },
     RABBITMQ_URL,
+    DSN_SENTRY,
 };
 
 export default config;
