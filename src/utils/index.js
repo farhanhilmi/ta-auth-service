@@ -51,3 +51,7 @@ export const validateData = ({ requiredField, data }) => {
 
     return { error: errorFields.length > 0, errorFields };
 };
+
+export const generateRandomCode = () => {
+    return Math.floor(Math.random() * 90000) + 10000;
+};

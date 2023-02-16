@@ -10,7 +10,7 @@ const startServer = async () => {
     const app = express();
 
     //  database connection
-    await dbConnection();
+    // await dbConnection();
 
     const channel = 'ini test channel';
 
@@ -19,7 +19,6 @@ const startServer = async () => {
     errorhandler(app);
 
     app.use((req, res, next) => {
-        console.log('ZONKKK');
         const error = new Error("API endpoint doesn't exist! [USER SERVICE]");
         error.status = 404;
         next(error);

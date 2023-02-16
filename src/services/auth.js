@@ -1,6 +1,7 @@
 import UsersRepository from '../database/repository/users.js';
 import {
     formatData,
+    generateRandomCode,
     hashPassword,
     validateData,
     verifyPassword,
@@ -17,6 +18,7 @@ import {
     verifyRefreshToken,
 } from '../utils/jwtToken.js';
 import RefreshTokenRepository from '../database/repository/refreshTokenRepo.js';
+import { sendMail } from '../utils/mail/index.js';
 
 class AuthService {
     constructor() {
@@ -30,13 +32,12 @@ class AuthService {
             throw new ValidationError('userId & roles is required!');
         }
         const user = await this.usersRepo.findById(userId);
-        console.log('user', user);
         if (!user) {
             throw new NotFoundError('Data not found!');
         }
-        if ((user && user?.roles != roles) || user?.roles != 'admin') {
-            throw new Error('You do not have access to this resource');
-        }
+        // if (user?.roles != roles || user?.roles != 'admin') {
+        //     throw new AuthorizeError('You do not have access to this resource');
+        // }
 
         return formatData(user);
     }
@@ -65,6 +66,15 @@ class AuthService {
         }
 
         const salt = hashedPassword.value.split('.')[0];
+        // console.log('connection', Object.getOwnPropertyNames(connection));
+
+        const randomNum = generateRandomCode();
+        const dataMail = {
+            recipient: email,
+            subject: `Verify Your Email [P2P Lending Syariah]`,
+            code: randomNum,
+        };
+
         const user = await this.usersRepo.createUser({
             name,
             email,
@@ -74,6 +84,7 @@ class AuthService {
             salt,
         });
 
+        if (user) sendMail(dataMail);
         return formatData(user);
     }
 
@@ -111,12 +122,6 @@ class AuthService {
         if (!refreshToken) throw new NotFoundError('Data not found!');
 
         const result = await verifyRefreshToken(token);
-
-        // if (result.exp < Date.now() / 1000) {
-        //     throw new AuthorizeError(
-        //         'Refresh token was expired. Please make a new signin request',
-        //     );
-        // }
 
         const newAccessToken = await regenerateAccessToken({
             _id: result.userId,
