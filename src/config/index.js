@@ -18,6 +18,8 @@ const {
     OAUTH_CLIENT_SECRET,
     OAUTH_CLIENTID,
     RABBITMQ_URL,
+    TZ,
+    OTP_EXPIRED,
 } = process.env;
 
 const config = {
@@ -44,6 +46,7 @@ const config = {
     },
     RABBITMQ_URL,
     DSN_SENTRY,
+    OTP_EXPIRED,
 };
 
 export default config;

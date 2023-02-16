@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import config from '../../config/index.js';
 
 const Schema = mongoose.Schema;
 

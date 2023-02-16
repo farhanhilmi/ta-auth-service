@@ -1,7 +1,6 @@
 import UsersRepository from '../database/repository/users.js';
 import {
     formatData,
-    generateRandomCode,
     hashPassword,
     validateData,
     verifyPassword,
@@ -18,12 +17,14 @@ import {
     verifyRefreshToken,
 } from '../utils/jwtToken.js';
 import RefreshTokenRepository from '../database/repository/refreshTokenRepo.js';
-import { sendMail } from '../utils/mail/index.js';
+import { sendMailOTP } from '../utils/mail/index.js';
+import OTPRepository from '../database/repository/OTPrepo.js';
 
 class AuthService {
     constructor() {
         this.usersRepo = new UsersRepository();
         this.refreshTokenRepo = new RefreshTokenRepository();
+        this.otpRepo = new OTPRepository();
     }
 
     async getUserData(data) {
@@ -68,13 +69,6 @@ class AuthService {
         const salt = hashedPassword.value.split('.')[0];
         // console.log('connection', Object.getOwnPropertyNames(connection));
 
-        const randomNum = generateRandomCode();
-        const dataMail = {
-            recipient: email,
-            subject: `Verify Your Email [P2P Lending Syariah]`,
-            code: randomNum,
-        };
-
         const user = await this.usersRepo.createUser({
             name,
             email,
@@ -84,8 +78,14 @@ class AuthService {
             salt,
         });
 
-        if (user) sendMail(dataMail);
-        return formatData(user);
+        let otpExpiredTime;
+
+        if (user) {
+            const { otp, otpExpired } = sendMailOTP(email);
+            otpExpiredTime = otpExpired;
+            this.otpRepo.create(user._id, otp, otpExpired);
+        }
+        return formatData({ ...user, otpExpired: otpExpiredTime });
     }
 
     async login(payload) {

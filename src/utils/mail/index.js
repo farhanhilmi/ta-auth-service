@@ -3,6 +3,11 @@ import nodemailer from 'nodemailer';
 import mustache from 'mustache';
 import config from '../../config/index.js';
 import { APIError, ValidationError } from '../appErrors.js';
+import {
+    addMinutesToDate,
+    generateRandomCode,
+    dateFormatter,
+} from '../index.js';
 
 /**
  *
@@ -40,4 +45,19 @@ export const sendMail = async (data) => {
     };
     transporter.sendMail(mailOptions);
     return true;
+};
+
+export const sendMailOTP = (email) => {
+    const otp = generateRandomCode();
+    const dataMail = {
+        recipient: email,
+        subject: `Verify Your Email [P2P Lending Syariah]`,
+        code: otp,
+    };
+
+    const otpExpired = dateFormatter(
+        addMinutesToDate(new Date(), config.OTP_EXPIRED),
+    );
+    sendMail(dataMail);
+    return { otp, otpExpired };
 };

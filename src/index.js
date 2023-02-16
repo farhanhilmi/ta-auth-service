@@ -1,5 +1,4 @@
 import express from 'express';
-
 import dbConnection from './database/connection.js';
 import config from './config/index.js';
 import expressApp from './app.js';
@@ -8,6 +7,8 @@ import { errorhandler } from './utils/errorhandler.js';
 
 const startServer = async () => {
     const app = express();
+    // Moment().tz('Asia/Calcutta').format();
+    // moment.tz.setDefault('Asia/Calcutta');
 
     //  database connection
     // await dbConnection();
