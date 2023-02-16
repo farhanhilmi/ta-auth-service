@@ -1,15 +1,17 @@
+import _ from 'underscore';
 import Users from '../models/users.js';
 
 class UsersRepository {
     async createUser({ roles, name, email, password, salt }) {
-        const user = new Users({
+        const user = await Users.create({
             roles,
             name,
             email,
             password,
             salt,
         });
-        return await user.save();
+        const result = JSON.stringify(user);
+        return _.omit(JSON.parse(result), 'password', 'salt', '__v');
     }
 
     async find({
@@ -51,6 +53,28 @@ class UsersRepository {
 
     async isUserExist(email) {
         return await Users.exists({ email }).exec();
+    }
+
+    async createToken(user) {
+        let expiredAt = new Date();
+
+        expiredAt.setSeconds(
+            expiredAt.getSeconds() + config.tokenExpires.refresh,
+        );
+
+        const _token = uuidv4();
+
+        const _object = new this({
+            token: _token,
+            user: user._id,
+            expiryDate: expiredAt.getTime(),
+        });
+
+        console.log(_object);
+
+        let refreshToken = await _object.save();
+
+        return refreshToken.token;
     }
 }
 

@@ -18,6 +18,22 @@ const startServer = async () => {
     // errorHandler(app);
     errorhandler(app);
 
+    app.use((req, res, next) => {
+        console.log('ZONKKK');
+        const error = new Error("API endpoint doesn't exist! [USER SERVICE]");
+        error.status = 404;
+        next(error);
+    });
+
+    // error handler middleware
+    app.use((error, req, res, _) => {
+        res.status(error.status || 500).json({
+            success: false,
+            data: [],
+            message: error.message || 'Internal Server Error',
+        });
+    });
+
     app.listen(config.app.port, () => {
         console.log(
             `[${config.app.name}] listening to port ${config.app.port}`,

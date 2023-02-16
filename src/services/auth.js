@@ -11,11 +11,17 @@ import {
     NotFoundError,
     ValidationError,
 } from '../utils/appErrors.js';
-import generateTokens from '../utils/generateTokens.js';
+import {
+    generateTokens,
+    regenerateAccessToken,
+    verifyRefreshToken,
+} from '../utils/jwtToken.js';
+import RefreshTokenRepository from '../database/repository/refreshTokenRepo.js';
 
 class AuthService {
     constructor() {
         this.usersRepo = new UsersRepository();
+        this.refreshTokenRepo = new RefreshTokenRepository();
     }
 
     async getUserData(data) {
@@ -90,7 +96,37 @@ class AuthService {
         }
 
         const { accessToken, refreshToken } = await generateTokens(user);
+        await this.refreshTokenRepo.create(user._id, refreshToken);
+
         return formatData({ accessToken, refreshToken });
+    }
+
+    async refreshToken(payload) {
+        const { token } = payload;
+        if (!token) throw new ValidationError(`refresh_token is required!`);
+
+        const refreshToken = await this.refreshTokenRepo.findOne({
+            refreshToken: token,
+        });
+        if (!refreshToken) throw new NotFoundError('Data not found!');
+
+        const result = await verifyRefreshToken(token);
+
+        // if (result.exp < Date.now() / 1000) {
+        //     throw new AuthorizeError(
+        //         'Refresh token was expired. Please make a new signin request',
+        //     );
+        // }
+
+        const newAccessToken = await regenerateAccessToken({
+            _id: result.userId,
+            roles: result.roles,
+        });
+
+        return formatData({
+            accessToken: newAccessToken,
+            refreshToken: refreshToken.refreshToken,
+        });
     }
 }
 

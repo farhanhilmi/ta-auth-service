@@ -11,6 +11,10 @@ const Routes = (channel) => {
     router.get('/', userController.getUser.bind(userController));
     router.post('/register', userController.register.bind(userController));
     router.post('/login', userController.login.bind(userController));
+    router.post(
+        '/token/refresh',
+        userController.refreshToken.bind(userController),
+    );
 
     // TESTING ROUTE
     router.get('/test', controller.testApi.bind(controller));
