@@ -11,11 +11,20 @@ import {
     NotFoundError,
     ValidationError,
 } from '../utils/appErrors.js';
-import generateTokens from '../utils/generateTokens.js';
+import {
+    generateTokens,
+    regenerateAccessToken,
+    verifyRefreshToken,
+} from '../utils/jwtToken.js';
+import RefreshTokenRepository from '../database/repository/refreshTokenRepo.js';
+import { sendMailOTP } from '../utils/mail/index.js';
+import OTPRepository from '../database/repository/OTPrepo.js';
 
 class AuthService {
     constructor() {
         this.usersRepo = new UsersRepository();
+        this.refreshTokenRepo = new RefreshTokenRepository();
+        this.otpRepo = new OTPRepository();
     }
 
     async getUserData(data) {
@@ -24,13 +33,12 @@ class AuthService {
             throw new ValidationError('userId & roles is required!');
         }
         const user = await this.usersRepo.findById(userId);
-        console.log('user', user);
         if (!user) {
             throw new NotFoundError('Data not found!');
         }
-        if ((user && user?.roles != roles) || user?.roles != 'admin') {
-            throw new Error('You do not have access to this resource');
-        }
+        // if (user?.roles != roles || user?.roles != 'admin') {
+        //     throw new AuthorizeError('You do not have access to this resource');
+        // }
 
         return formatData(user);
     }
@@ -59,6 +67,8 @@ class AuthService {
         }
 
         const salt = hashedPassword.value.split('.')[0];
+        // console.log('connection', Object.getOwnPropertyNames(connection));
+
         const user = await this.usersRepo.createUser({
             name,
             email,
@@ -68,7 +78,14 @@ class AuthService {
             salt,
         });
 
-        return formatData(user);
+        let otpExpiredTime;
+
+        if (user) {
+            const { otp, otpExpired } = sendMailOTP(email);
+            otpExpiredTime = otpExpired;
+            this.otpRepo.create(user._id, otp, otpExpired);
+        }
+        return formatData({ ...user, otpExpired: otpExpiredTime });
     }
 
     async login(payload) {
@@ -90,7 +107,31 @@ class AuthService {
         }
 
         const { accessToken, refreshToken } = await generateTokens(user);
+        await this.refreshTokenRepo.create(user._id, refreshToken);
+
         return formatData({ accessToken, refreshToken });
+    }
+
+    async refreshToken(payload) {
+        const { token } = payload;
+        if (!token) throw new ValidationError(`refresh_token is required!`);
+
+        const refreshToken = await this.refreshTokenRepo.findOne({
+            refreshToken: token,
+        });
+        if (!refreshToken) throw new NotFoundError('Data not found!');
+
+        const result = await verifyRefreshToken(token);
+
+        const newAccessToken = await regenerateAccessToken({
+            _id: result.userId,
+            roles: result.roles,
+        });
+
+        return formatData({
+            accessToken: newAccessToken,
+            refreshToken: refreshToken.refreshToken,
+        });
     }
 }
 

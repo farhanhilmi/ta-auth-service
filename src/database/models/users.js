@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+// import moment from 'moment-timezone';
 
 const roleOptions = {
     type: String,
@@ -37,5 +38,9 @@ const userSchema = new mongoose.Schema(
         collection: 'users',
     },
 );
+
+// userSchema.virtual('adjustedTime').get(function () {
+//     return moment.tz(this.sentTime, 'Asia/Jakarta').format();
+// });
 
 export default mongoose.model('Users', userSchema);

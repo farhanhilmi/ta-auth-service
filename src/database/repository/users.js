@@ -1,15 +1,17 @@
+import _ from 'underscore';
 import Users from '../models/users.js';
 
 class UsersRepository {
     async createUser({ roles, name, email, password, salt }) {
-        const user = new Users({
+        const user = await Users.create({
             roles,
             name,
             email,
             password,
             salt,
         });
-        return await user.save();
+        const result = JSON.stringify(user);
+        return _.omit(JSON.parse(result), 'password', 'salt', '__v');
     }
 
     async find({

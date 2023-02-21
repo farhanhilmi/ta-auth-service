@@ -1,9 +1,11 @@
 import AuthService from '../services/auth.js';
 
+// import userServices from '../services/index.js';
 export class UsersController {
     constructor(channel) {
         this.channel = channel;
         this.authService = new AuthService();
+        // this.TestService = new userServices();
     }
 
     async getUser(req, res, next) {
@@ -25,6 +27,7 @@ export class UsersController {
     async register(req, res, next) {
         try {
             const data = await this.authService.createAccount(req.body);
+            // const data = await this.authService.createAccount(req.body);
             res.status(201).json({
                 status: 'OK',
                 message: 'success create new account',
@@ -41,6 +44,21 @@ export class UsersController {
             res.status(200).json({
                 status: 'OK',
                 message: 'success logged in',
+                data,
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async refreshToken(req, res, next) {
+        try {
+            const data = await this.authService.refreshToken({
+                token: req.body.refreshToken,
+            });
+            res.status(200).json({
+                status: 'OK',
+                message: 'success generate new access token',
                 data,
             });
         } catch (error) {

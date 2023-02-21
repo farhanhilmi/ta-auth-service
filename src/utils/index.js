@@ -1,4 +1,10 @@
 import crypto from 'crypto';
+import moment from 'moment-timezone';
+import { APIError } from './appErrors.js';
+
+export const getCurrentJakartaTime = () => {
+    return moment.tz(Date.now(), 'Asia/Jakarta');
+};
 
 export const formatData = (data) => {
     if (data) {
@@ -50,4 +56,27 @@ export const validateData = ({ requiredField, data }) => {
     }
 
     return { error: errorFields.length > 0, errorFields };
+};
+
+export const generateRandomCode = () => {
+    return Math.floor(Math.random() * 90000) + 10000;
+};
+
+// To add minutes to the current time
+export const addMinutesToDate = (date, minutes) => {
+    return new Date(date.getTime() + minutes * 60000);
+};
+
+// https://stackoverflow.com/questions/43341823/javascript-date-to-string-with-iso-format-with-timezone
+export const dateFormatter = (date, format) => {
+    const timezone = 'Asia/Jakarta';
+    // Validate that the time zone is supported
+    if (!moment.tz.zone(timezone)) {
+        return APIError('Unknown time zone: "' + timezone + '"');
+    }
+    // Use current date if not supplied
+    date = date || new Date();
+    // Use default format if not supplied
+    format = format || 'YYYY-MM-DDTHH:mm:ssZZ';
+    return moment(date).tz(timezone).format(format);
 };

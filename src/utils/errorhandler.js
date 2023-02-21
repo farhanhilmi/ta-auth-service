@@ -66,11 +66,8 @@ export const errorhandler = (app) => {
                 return res
                     .status(err.statusCode)
                     .json({ message: err.message, status: 'failed', data: [] });
-            } else {
-                //process exit // terriablly wrong with flow need restart
-                console.log('HARUS EXIT DONG');
             }
-            console.log(err);
+            console.log('ERROR', err);
             return res
                 .status(err.statusCode || 500)
                 .json({ status: 'failed', message: err.message, data: [] });

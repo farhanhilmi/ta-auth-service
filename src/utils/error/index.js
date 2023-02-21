@@ -2,9 +2,10 @@ import Sentry from '@sentry/node';
 import _ from '@sentry/tracing';
 
 import { ValidationError, NotFoundError, AuthorizeError } from './appErrors.js';
+import config from '../../config/index.js';
 
 Sentry.init({
-    dsn: 'https://d1a1564a98064645809fdbb76dc35142@o4504684485214208.ingest.sentry.io/4504684487245824',
+    dsn: config.DSN_SENTRY,
     tracesSampleRate: 1.0,
 });
 
