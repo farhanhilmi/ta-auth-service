@@ -65,4 +65,17 @@ export class UsersController {
             next(error);
         }
     }
+
+    async verifyOTP(req, res, next) {
+        try {
+            const data = await this.authService.verifyOTPEmail(req.body);
+            res.status(200).json({
+                status: 'OK',
+                message: 'success verified user email!',
+                data,
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
 }

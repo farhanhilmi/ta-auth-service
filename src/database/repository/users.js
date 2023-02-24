@@ -43,6 +43,10 @@ class UsersRepository {
         return await Users.findByIdAndUpdate(id, payload, options).exec();
     }
 
+    async updateVerifiedUser(id, verified, options = { new: true }) {
+        return await Users.findByIdAndUpdate(id, { verified }, options).exec();
+    }
+
     async updateSalt(id, salt, options = { new: true }) {
         return await Users.findByIdAndUpdate(id, { salt }, options).exec();
     }

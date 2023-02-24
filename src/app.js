@@ -1,12 +1,15 @@
 import express from 'express';
+import cors from 'cors';
 
 import Routes from './routes/index.js';
 
-export default async (app, channel) => {
+export default async (channel) => {
+    const app = express();
     app.use(express.json());
-    // app.use(cors())
+    app.use(cors({ origin: ['http://localhost:8000'] }));
 
     app.use(Routes(channel));
+    return app;
 
     // // API ENDPOINT NOT FOUND
     // app.use((req, res, next) => {

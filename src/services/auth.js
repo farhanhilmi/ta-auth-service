@@ -81,9 +81,16 @@ class AuthService {
         let otpExpiredTime;
 
         if (user) {
-            const { otp, otpExpired } = sendMailOTP(email);
+            const { otp, otpExpired } = await sendMailOTP(email);
             otpExpiredTime = otpExpired;
-            this.otpRepo.create(user._id, otp, otpExpired);
+            const userOTP = await this.otpRepo.findOne({ userId: user._id });
+            if (!userOTP) this.otpRepo.create(user._id, otp, otpExpired);
+            if (userOTP) {
+                this.otpRepo.updateOTPByUserId(user._id, {
+                    otp,
+                    expired: otpExpired,
+                });
+            }
         }
         return formatData({ ...user, otpExpired: otpExpiredTime });
     }
@@ -110,6 +117,39 @@ class AuthService {
         await this.refreshTokenRepo.create(user._id, refreshToken);
 
         return formatData({ accessToken, refreshToken });
+    }
+
+    async verifyOTPEmail(payload) {
+        const { otp, userId } = payload;
+        const requiredField = { otp, userId };
+
+        const { error, errorFields } = validateData({
+            requiredField,
+            data: payload,
+        });
+
+        if (error) {
+            throw new ValidationError(`${errorFields} is required!`);
+        }
+        const user = await this.usersRepo.findOne({ _id: userId });
+        if (user.verified) {
+            throw new ValidationError('Sudah terverifikasi');
+        }
+        const dataOTP = await this.otpRepo.findOne({ userId });
+
+        if (otp != dataOTP.otp) {
+            throw new ValidationError(
+                'Kode OTP tidak sesuai. Silakan periksa kembali!',
+            );
+        }
+        await this.otpRepo.deleteOTP(userId);
+        await this.usersRepo.updateVerifiedUser(userId, true);
+
+        return formatData({
+            success: true,
+            otp: dataOTP.otp,
+            otp_input: otp,
+        });
     }
 
     async refreshToken(payload) {

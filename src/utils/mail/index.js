@@ -47,7 +47,7 @@ export const sendMail = async (data) => {
     return true;
 };
 
-export const sendMailOTP = (email) => {
+export const sendMailOTP = async (email) => {
     const otp = generateRandomCode();
     const dataMail = {
         recipient: email,
@@ -58,6 +58,9 @@ export const sendMailOTP = (email) => {
     const otpExpired = dateFormatter(
         addMinutesToDate(new Date(), config.OTP_EXPIRED),
     );
-    sendMail(dataMail);
+    console.log('OTP', { otp, otpExpired });
+
+    await sendMail(dataMail);
+    console.log('OTP 2', { otp, otpExpired });
     return { otp, otpExpired };
 };

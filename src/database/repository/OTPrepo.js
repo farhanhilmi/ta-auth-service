@@ -21,4 +21,8 @@ export default class OTPRepository {
         const payload = { otp, expired };
         return await this.model.updateOne({ userId }, payload, options);
     }
+
+    async deleteOTP(userId) {
+        return await this.model.findOneAndDelete({ userId });
+    }
 }
