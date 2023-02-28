@@ -1,0 +1,19 @@
+runtime: nodejs16
+
+# env_variables: 
+#     APP_NAME: USERS SERVICE
+#     PORT: 8001
+#     TZ: 'Asia/Jakarta'
+#     MONGODB_URI: mongodb+srv://user_ta:rT7wTzM5QoZVM7Y4@cluster0.vstco.mongodb.net/TA
+#     REFRESH_TOKEN_PRIVATE_KEY: adiajj8238fs$@eErM78efjsejf89388hf$UUhd43uYZ
+#     ACCESS_TOKEN_PRIVATE_KEY: "**2%$23ndjaeadjFHC$$8839HyUJJuu@@$%jdi!jd"
+#     ACCESS_TOKEN_EXPIRES_IN: '1days'
+#     REFRESH_TOKEN_EXPIRES_IN: '30days'
+#     OTP_EXPIRED: 5
+#     EMAIL_USER: lendingsyariah@gmail.com
+#     EMAIL_PASS: hwksaizgloekvpod
+#     OAUTH_CLIENTID: 281897460630-at6nobsfk86s5amtvlmu0gdlpatk4kri.apps.googleusercontent.com
+#     OAUTH_CLIENT_SECRET: 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
+#     OAUTH_REFRESH_TOKEN: 1//04VraaGSeMvcxCgYIARAAGAQSNwF-L9IrAPpG97byd9lzmvoUHcXfX-_FtCYzn_81N-e-p_xYdp2IZwNHIPdm8075tjn8ijJg6g0
+#     RABBITMQ_URL: 'amqps: //zijmxgzn:jJDlyBIz5vnguLQLRvBJpBdQO2ixUXwf@fuji.lmq.cloudamqp.com/zijmxgzn'
+#     DSN_SENTRY: https://d1a1564a98064645809fdbb76dc35142@o4504684485214208.ingest.sentry.io/4504684487245824
