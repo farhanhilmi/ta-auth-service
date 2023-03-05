@@ -124,6 +124,11 @@ class AuthService {
             throw new AuthorizeError('Password incorrect!');
         }
 
+        console.log('user', user);
+
+        if (!user.verified)
+            throw new AuthorizeError('Your email is not verified!');
+
         if (action?.toLowerCase() === 'sms-otp') {
             const otpExpired = await sendSmsOtp(user._id, user.phoneNumber);
             return formatData({ userId: user._id, otpExpired });
