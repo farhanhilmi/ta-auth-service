@@ -2,13 +2,14 @@ import _ from 'underscore';
 import Users from '../models/users.js';
 
 class UsersRepository {
-    async createUser({ roles, name, email, password, salt }) {
+    async createUser({ roles, name, email, password, salt, phoneNumber }) {
         const user = await Users.create({
             roles,
             name,
             email,
             password,
             salt,
+            phoneNumber,
         });
         const result = JSON.stringify(user);
         return _.omit(JSON.parse(result), 'password', 'salt', '__v');
@@ -41,6 +42,10 @@ class UsersRepository {
     ) {
         const payload = { roles, name, email, password };
         return await Users.findByIdAndUpdate(id, payload, options).exec();
+    }
+
+    async updateVerifiedUser(id, verified, options = { new: true }) {
+        return await Users.findByIdAndUpdate(id, { verified }, options).exec();
     }
 
     async updateSalt(id, salt, options = { new: true }) {

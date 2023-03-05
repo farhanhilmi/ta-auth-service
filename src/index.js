@@ -6,7 +6,6 @@ import expressApp from './app.js';
 import { errorhandler } from './utils/errorhandler.js';
 
 const startServer = async () => {
-    const app = express();
     // Moment().tz('Asia/Calcutta').format();
     // moment.tz.setDefault('Asia/Calcutta');
 
@@ -15,7 +14,7 @@ const startServer = async () => {
 
     const channel = 'ini test channel';
 
-    await expressApp(app, channel);
+    const app = await expressApp(channel);
     // errorHandler(app);
     errorhandler(app);
 

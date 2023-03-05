@@ -20,6 +20,10 @@ const {
     RABBITMQ_URL,
     TZ,
     OTP_EXPIRED,
+    SMS_OTP_APP_NAME,
+    SMS_OTP_HOST,
+    SMS_OTP_URL,
+    SMS_OTP_KEY,
 } = process.env;
 
 const config = {
@@ -37,6 +41,12 @@ const config = {
         OAUTH_CLIENTID: OAUTH_CLIENTID,
         OAUTH_CLIENT_SECRET: OAUTH_CLIENT_SECRET,
         OAUTH_REFRESH_TOKEN: OAUTH_REFRESH_TOKEN,
+    },
+    sms: {
+        SMS_OTP_APP_NAME,
+        SMS_OTP_HOST,
+        SMS_OTP_URL,
+        SMS_OTP_KEY,
     },
     REFRESH_TOKEN_PRIVATE_KEY,
     ACCESS_TOKEN_PRIVATE_KEY,

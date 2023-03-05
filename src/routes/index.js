@@ -16,6 +16,16 @@ const Routes = (channel) => {
         userController.refreshToken.bind(userController),
     );
 
+    router.post(
+        '/otp/email/verify',
+        userController.verifyOTP.bind(userController),
+    );
+
+    router.post(
+        '/otp/sms/send',
+        userController.sendSmsOTP.bind(userController),
+    );
+
     // TESTING ROUTE
     router.get('/test', controller.testApi.bind(controller));
     router.post('/add', controller.testApiPost.bind(controller));
