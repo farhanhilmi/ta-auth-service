@@ -55,9 +55,10 @@ describe('Auth ~ Success Scenario', () => {
     it('must be able to verify the OTP email', async () => {
         const userInput = {
             otp: '123456',
+            userId: '',
         };
 
-        const isTrue = await authService.verifyOTP(userInput);
-        expect(isTrue).toBeTruthy();
+        const result = await authService.verifyOTPEmail(userInput);
+        expect(result.success).toBeTruthy();
     });
 });

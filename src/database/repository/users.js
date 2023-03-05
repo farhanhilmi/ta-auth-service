@@ -2,13 +2,14 @@ import _ from 'underscore';
 import Users from '../models/users.js';
 
 class UsersRepository {
-    async createUser({ roles, name, email, password, salt }) {
+    async createUser({ roles, name, email, password, salt, phoneNumber }) {
         const user = await Users.create({
             roles,
             name,
             email,
             password,
             salt,
+            phoneNumber,
         });
         const result = JSON.stringify(user);
         return _.omit(JSON.parse(result), 'password', 'salt', '__v');

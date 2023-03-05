@@ -19,6 +19,8 @@ import {
 import RefreshTokenRepository from '../database/repository/refreshTokenRepo.js';
 import { sendMailOTP } from '../utils/mail/index.js';
 import OTPRepository from '../database/repository/OTPrepo.js';
+import sendSmsOtp from './sendSmsOtp.js';
+import verifySmsOtp from './verifySmsOtp.js';
 
 class AuthService {
     constructor() {
@@ -44,8 +46,8 @@ class AuthService {
     }
 
     async createAccount(payload) {
-        const { name, email, password, roles } = payload;
-        const requiredField = { name, email, password, roles };
+        const { name, email, password, roles, phoneNumber } = payload;
+        const requiredField = { name, email, password, roles, phoneNumber };
 
         const { error, errorFields } = validateData({
             requiredField,
@@ -65,7 +67,7 @@ class AuthService {
                 'This e-mail address has already been registered',
             );
         }
-
+        console.log('phoneNumber', phoneNumber);
         const salt = hashedPassword.value.split('.')[0];
         // console.log('connection', Object.getOwnPropertyNames(connection));
 
@@ -75,6 +77,7 @@ class AuthService {
             roles,
             password: hashedPassword.value,
             verified: false,
+            phoneNumber,
             salt,
         });
 
@@ -95,9 +98,18 @@ class AuthService {
         return formatData({ ...user, otpExpired: otpExpiredTime });
     }
 
-    async login(payload) {
-        const { email, password } = payload;
+    async login(payload, action = false) {
+        const { email, password, otp } = payload;
         const requiredField = { email, password };
+        const user = await this.usersRepo.findOne({ email }, { __v: 0 });
+
+        if (action?.toLowerCase() === 'login') {
+            await verifySmsOtp(user._id, otp);
+            const { accessToken, refreshToken } = await generateTokens(user);
+            await this.refreshTokenRepo.create(user._id, refreshToken);
+
+            return formatData({ accessToken, refreshToken });
+        }
 
         const { error, errorFields } = validateData({
             requiredField,
@@ -107,16 +119,15 @@ class AuthService {
             throw new ValidationError(`${errorFields} is required!`);
         }
 
-        const user = await this.usersRepo.findOne({ email }, { __v: 0 });
         if (!user) throw new NotFoundError('User not found!');
         if (!(await verifyPassword(password, user.password, user.salt))) {
             throw new AuthorizeError('Password incorrect!');
         }
 
-        const { accessToken, refreshToken } = await generateTokens(user);
-        await this.refreshTokenRepo.create(user._id, refreshToken);
-
-        return formatData({ accessToken, refreshToken });
+        if (action?.toLowerCase() === 'sms-otp') {
+            const otpExpired = await sendSmsOtp(user._id, user.phoneNumber);
+            return formatData({ userId: user._id, otpExpired });
+        }
     }
 
     async verifyOTPEmail(payload) {
@@ -132,14 +143,14 @@ class AuthService {
             throw new ValidationError(`${errorFields} is required!`);
         }
         const user = await this.usersRepo.findOne({ _id: userId });
-        if (user.verified) {
+        if (user?.verified) {
             throw new ValidationError('Sudah terverifikasi');
         }
         const dataOTP = await this.otpRepo.findOne({ userId });
 
-        if (otp != dataOTP.otp) {
+        if (otp != dataOTP?.otp) {
             throw new ValidationError(
-                'Kode OTP tidak sesuai. Silakan periksa kembali!',
+                "OTP code doesn't match. Please check again!",
             );
         }
         await this.otpRepo.deleteOTP(userId);
