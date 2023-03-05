@@ -130,7 +130,17 @@ class AuthService {
             throw new AuthorizeError('Your email is not verified!');
 
         if (action?.toLowerCase() === 'sms-otp') {
-            const otpExpired = await sendSmsOtp(user._id, user.phoneNumber);
+            const { otp, otpExpired } = await sendMailOTP(email);
+            const userOTP = await this.otpRepo.findOne({ userId: user._id });
+            if (!userOTP) this.otpRepo.create(user._id, otp, otpExpired);
+            if (userOTP) {
+                this.otpRepo.updateOTPByUserId(user._id, {
+                    otp,
+                    expired: otpExpired,
+                });
+            }
+
+            // const otpExpired = await sendSmsOtp(user._id, user.phoneNumber);
             return formatData({ userId: user._id, otpExpired });
         }
     }
