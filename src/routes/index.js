@@ -21,6 +21,16 @@ const Routes = (channel) => {
         userController.verifyOTP.bind(userController),
     );
 
+    // FORGET PASSWORD ROUTE
+    router.post(
+        '/password/reset/request',
+        userController.requestNewPassword.bind(userController),
+    );
+    router.post(
+        '/password/reset/change',
+        userController.forgetNewPassword.bind(userController),
+    );
+
     // router.post(
     //     '/otp/email/verify',
     //     userController.verifyOTP.bind(userController),

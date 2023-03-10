@@ -66,3 +66,21 @@ export const sendMailOTP = async (email, subject, template) => {
     console.log('OTP 2', { otp, otpExpired });
     return { otp, otpExpired };
 };
+
+export const sendMailRequestNewPassword = async (email, subject, link) => {
+    const dataMail = {
+        recipient: email,
+        // subject: `Verify Your Email [P2P Lending Syariah]`,
+        subject,
+        link,
+    };
+
+    const template = fs.readFileSync(
+        './src/utils/mail/template/forgetPassword.html',
+        'utf8',
+    );
+
+    await sendMail(dataMail, template);
+    console.log('MASOOKK');
+    return true;
+};

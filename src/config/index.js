@@ -24,6 +24,8 @@ const {
     SMS_OTP_HOST,
     SMS_OTP_URL,
     SMS_OTP_KEY,
+    SALT_FORGET_PASSWORD_TOKEN,
+    CLIENT_REACT_APP_HOST,
 } = process.env;
 
 const config = {
@@ -57,6 +59,8 @@ const config = {
     RABBITMQ_URL,
     DSN_SENTRY,
     OTP_EXPIRED,
+    SALT_FORGET_PASSWORD_TOKEN,
+    CLIENT_REACT_APP_HOST,
 };
 
 export default config;
