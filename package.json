@@ -15,7 +15,7 @@
     },
     "scripts": {
         "test": "jest --coverage --detectOpenHandles",
-        "start": "node ./src/index.js",
+        "start": "nodemon ./src/index.js",
         "dev": "$env:TC='Europe/Amsterdam' node src/index.js",
         "deploy": "gcloud app deploy"
     },

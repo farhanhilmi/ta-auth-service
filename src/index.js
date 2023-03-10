@@ -37,6 +37,7 @@ const startServer = async () => {
         console.log(
             `[${config.app.name}] listening to port ${config.app.port}`,
         );
+        // console.log('process.env', process.env);
     })
         .on('error', (err) => {
             console.log(err);

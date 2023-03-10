@@ -1,3 +1,4 @@
+import fs from 'fs';
 import UsersRepository from '../database/repository/users.js';
 import {
     formatData,
@@ -84,16 +85,23 @@ class AuthService {
         let otpExpiredTime;
 
         if (user) {
-            const { otp, otpExpired } = await sendMailOTP(email);
+            const template = fs.readFileSync(
+                './src/utils/mail/template/verifyAccount.html',
+                'utf8',
+            );
+            const subject = `Verify Your Email [P2P Lending Syariah]`;
+            const { otp, otpExpired } = await sendMailOTP(
+                email,
+                subject,
+                template,
+            );
             otpExpiredTime = otpExpired;
-            const userOTP = await this.otpRepo.findOne({ userId: user._id });
-            if (!userOTP) this.otpRepo.create(user._id, otp, otpExpired);
-            if (userOTP) {
-                this.otpRepo.updateOTPByUserId(user._id, {
-                    otp,
-                    expired: otpExpired,
-                });
-            }
+            // const userOTP = await this.otpRepo.findOne({ userId: user._id });
+            // if (!userOTP) this.otpRepo.create(user._id, otp, otpExpired);
+            await this.otpRepo.updateOTPByUserId(user._id, {
+                otp,
+                expired: otpExpired,
+            });
         }
         return formatData({ ...user, otpExpired: otpExpiredTime });
     }
@@ -124,24 +132,43 @@ class AuthService {
             throw new AuthorizeError('Password incorrect!');
         }
 
-        console.log('user', user);
-
         if (!user.verified)
             throw new AuthorizeError('Your email is not verified!');
 
+        // function addMinutes(date, minutes) {
+        //     return new Date(date.getTime() + minutes * 60000);
+        // }
+        // const jaja = addMinutes(new Date(), 5);
+
         if (action?.toLowerCase() === 'sms-otp') {
-            const { otp, otpExpired } = await sendMailOTP(email);
-            const userOTP = await this.otpRepo.findOne({ userId: user._id });
-            if (!userOTP) this.otpRepo.create(user._id, otp, otpExpired);
-            if (userOTP) {
-                this.otpRepo.updateOTPByUserId(user._id, {
-                    otp,
-                    expired: otpExpired,
-                });
-            }
+            const template = fs.readFileSync(
+                './src/utils/mail/template/verifyOTP.html',
+                'utf8',
+            );
+            const subject = `[P2P Lending Syariah] Login Verification Code`;
+            const { otp, otpExpired } = await sendMailOTP(
+                email,
+                subject,
+                template,
+            );
+            // const userOTP = await this.otpRepo.findOne({ userId: user._id });
+            // if (!userOTP) {
+            //     this.otpRepo.create(user._id, otp, otpExpired);
+            // }
+            // if (userOTP)
+            await this.otpRepo.updateOTPByUserId(user._id, {
+                otp,
+                expired: otpExpired,
+            });
+            // }
+            // console.log('otpExpired', otpExpired.);
 
             // const otpExpired = await sendSmsOtp(user._id, user.phoneNumber);
-            return formatData({ userId: user._id, otpExpired });
+            return formatData({
+                userId: user._id,
+                email: user.email,
+                otpExpired,
+            });
         }
     }
 

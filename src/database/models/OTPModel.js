@@ -6,7 +6,7 @@ const otpSchema = new Schema(
     {
         userId: { type: Schema.Types.ObjectId, required: true },
         otp: { type: String, required: true },
-        expired: { type: Date, required: true },
+        expired: { type: String, required: true },
         // expiredDate: Date,
     },
     {
