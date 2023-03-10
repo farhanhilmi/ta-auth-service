@@ -21,10 +21,15 @@ const Routes = (channel) => {
         userController.verifyOTP.bind(userController),
     );
 
-    router.post(
-        '/otp/sms/send',
-        userController.sendSmsOTP.bind(userController),
-    );
+    // router.post(
+    //     '/otp/email/verify',
+    //     userController.verifyOTP.bind(userController),
+    // );
+
+    // router.post(
+    //     '/otp/sms/send',
+    //     userController.sendSmsOTP.bind(userController),
+    // );
 
     // TESTING ROUTE
     router.get('/test', controller.testApi.bind(controller));

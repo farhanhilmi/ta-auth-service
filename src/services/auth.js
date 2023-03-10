@@ -1,6 +1,7 @@
 import fs from 'fs';
 import UsersRepository from '../database/repository/users.js';
 import {
+    dateFormatter,
     formatData,
     hashPassword,
     validateData,
@@ -22,6 +23,7 @@ import { sendMailOTP } from '../utils/mail/index.js';
 import OTPRepository from '../database/repository/OTPrepo.js';
 import sendSmsOtp from './sendSmsOtp.js';
 import verifySmsOtp from './verifySmsOtp.js';
+import verifyLoginOTP from './verifyLoginOTP.js';
 
 class AuthService {
     constructor() {
@@ -112,7 +114,8 @@ class AuthService {
         const user = await this.usersRepo.findOne({ email }, { __v: 0 });
 
         if (action?.toLowerCase() === 'login') {
-            await verifySmsOtp(user._id, otp);
+            // await verifySmsOtp(user._id, otp);
+            await verifyLoginOTP(otp, user._id);
             const { accessToken, refreshToken } = await generateTokens(user);
             await this.refreshTokenRepo.create(user._id, refreshToken);
 
@@ -166,8 +169,8 @@ class AuthService {
             // const otpExpired = await sendSmsOtp(user._id, user.phoneNumber);
             return formatData({
                 userId: user._id,
-                email: user.email,
                 otpExpired,
+                email,
             });
         }
     }
