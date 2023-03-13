@@ -53,7 +53,7 @@ export const sendMailOTP = async (email, subject, template) => {
     const otpExpired = dateFormatter(
         addMinutesToDate(new Date(), config.OTP_EXPIRED),
     );
-    console.log('OTP', { otp, otpExpired });
+    // console.log('OTP', { otp, otpExpired });
     const dataMail = {
         recipient: email,
         // subject: `Verify Your Email [P2P Lending Syariah]`,
@@ -63,7 +63,7 @@ export const sendMailOTP = async (email, subject, template) => {
     };
 
     await sendMail(dataMail, template);
-    console.log('OTP 2', { otp, otpExpired });
+    // console.log('OTP 2', { otp, otpExpired });
     return { otp, otpExpired };
 };
 

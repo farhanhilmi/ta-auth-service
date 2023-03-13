@@ -31,7 +31,7 @@ export default async (userId, phoneNumber) => {
     const otpExpired = dateFormatter(
         addMinutesToDate(new Date(), config.OTP_EXPIRED),
     );
-    console.log('OTP', { verifyCode, otpExpired });
+    // console.log('OTP', { verifyCode, otpExpired });
 
     const userOTP = await otpRepo.findOne({ userId });
     if (!userOTP) await otpRepo.create(userId, verifyCode, otpExpired);

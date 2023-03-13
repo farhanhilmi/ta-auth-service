@@ -70,7 +70,7 @@ class AuthService {
                 'This e-mail address has already been registered',
             );
         }
-        console.log('phoneNumber', phoneNumber);
+        // console.log('phoneNumber', phoneNumber);
         const salt = hashedPassword.value.split('.')[0];
         // console.log('connection', Object.getOwnPropertyNames(connection));
 
@@ -129,7 +129,6 @@ class AuthService {
         if (error) {
             throw new ValidationError(`${errorFields} is required!`);
         }
-
         if (!user) throw new NotFoundError('User not found!');
         if (!(await verifyPassword(password, user.password, user.salt))) {
             throw new AuthorizeError('Password incorrect!');
@@ -143,7 +142,7 @@ class AuthService {
         // }
         // const jaja = addMinutes(new Date(), 5);
 
-        if (action?.toLowerCase() === 'sms-otp') {
+        if (action?.toLowerCase() === 'email-otp') {
             const template = fs.readFileSync(
                 './src/utils/mail/template/verifyOTP.html',
                 'utf8',

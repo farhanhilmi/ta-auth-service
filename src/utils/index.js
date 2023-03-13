@@ -80,3 +80,19 @@ export const dateFormatter = (date, format) => {
     format = format || 'YYYY-MM-DDTHH:mm:ssZZ';
     return moment(date).tz(timezone).format(format);
 };
+
+export const isMobileDevice = (userAgent) => {
+    const toMatch = [
+        /Android/i,
+        /webOS/i,
+        /iPhone/i,
+        /iPad/i,
+        /iPod/i,
+        /BlackBerry/i,
+        /Windows Phone/i,
+    ];
+
+    return toMatch.some((toMatchItem) => {
+        return userAgent.match(toMatchItem);
+    });
+};

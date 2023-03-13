@@ -17,6 +17,7 @@ const resultData = [
         salt: 'kfaj73ejfe',
         verified: true,
         roles: 'lender',
+        phoneNumber: '089283823',
     },
     {
         _id: '63edc92b7926224a7188b4ab',
@@ -26,6 +27,7 @@ const resultData = [
         salt: 'fsf3434hafa',
         verified: true,
         roles: 'borrower',
+        phoneNumber: '089283822',
     },
 ];
 
@@ -69,6 +71,10 @@ beforeAll(async () => {
 beforeEach(async () => {
     const auth = new AuthService();
     await Promise.all(resultData.map((item) => auth.createAccount(item)));
+    await UsersModel.findOneAndUpdate(
+        { email: resultData[1].email },
+        { verified: true },
+    );
 });
 
 afterEach(async () => {

@@ -1,5 +1,9 @@
 import dotenv from 'dotenv';
 
+// dotenv.config({
+//     path: path.resolve(__dirname, process.env.NODE_ENV + '.env')
+//   });
+
 dotenv.config();
 
 const {
@@ -26,6 +30,7 @@ const {
     SMS_OTP_KEY,
     SALT_FORGET_PASSWORD_TOKEN,
     CLIENT_REACT_APP_HOST,
+    NODE_ENV,
 } = process.env;
 
 const config = {
@@ -50,6 +55,7 @@ const config = {
         SMS_OTP_URL,
         SMS_OTP_KEY,
     },
+    NODE_ENV,
     REFRESH_TOKEN_PRIVATE_KEY,
     ACCESS_TOKEN_PRIVATE_KEY,
     tokenExpires: {
