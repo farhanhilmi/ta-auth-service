@@ -6,11 +6,20 @@ import UsersRepository from '../../database/repository/users.js';
 import forgetTokenModel from '../../database/models/forgetToken.js';
 import config from '../../config/index.js';
 import { sendMailRequestNewPassword } from '../../utils/mail/index.js';
+import { generateDynamicLink } from '../../utils/firebase.js';
 
 const userRpo = new UsersRepository();
 
-export default async (email) => {
+export default async ({ email, platform }) => {
     if (!email) throw new ValidationError('Email is required!');
+    if (!platform) throw new ValidationError('Platform is required!');
+    platform = platform.toLowerCase();
+    console.log('platform', platform);
+    if (platform !== 'website' && platform !== 'mobile') {
+        throw new ValidationError(
+            'Platform is invalid! Options available is "website" or "mobile"',
+        );
+    }
 
     const user = await userRpo.findOne({ email });
     if (!user) throw new ValidationError('User not found!');
@@ -29,7 +38,13 @@ export default async (email) => {
         token: hash,
     }).save();
 
-    const link = `${config.CLIENT_REACT_APP_HOST}/reset-password/${resetToken}/${user._id}`;
+    let link = `${config.CLIENT_REACT_APP_HOST}/reset-password/${resetToken}/${user._id}`;
+
+    if (platform === 'mobile') {
+        const dynamicLink = await generateDynamicLink(resetToken, user._id);
+        link = dynamicLink.shortLink;
+    }
+
     const subject = 'Forget Password - Request new password';
     await sendMailRequestNewPassword(email, subject, link);
 

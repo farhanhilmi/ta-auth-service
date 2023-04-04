@@ -24,7 +24,7 @@ const Routes = (channel) => {
     // FORGET PASSWORD ROUTE
     router.post(
         '/password/reset/request',
-        userController.requestNewPassword.bind(userController),
+        userController.requestForgetPassword.bind(userController),
     );
     router.post(
         '/password/reset/change',

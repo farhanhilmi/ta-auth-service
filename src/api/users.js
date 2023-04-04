@@ -83,13 +83,15 @@ export class UsersController {
         }
     }
 
-    async requestNewPassword(req, res, next) {
+    async requestForgetPassword(req, res, next) {
         try {
-            await requestResetPassword(req.body.email);
+            await requestResetPassword({
+                email: req.body.email,
+                platform: req.body.platform,
+            });
             res.status(200).json({
                 status: 'OK',
-                message:
-                    'success request new email. Please check your email inbox',
+                message: 'Please check your email inbox',
             });
         } catch (error) {
             next(error);
