@@ -52,6 +52,17 @@ class AuthService {
         const { name, email, password, roles, phoneNumber } = payload;
         const requiredField = { name, email, password, roles, phoneNumber };
 
+        const regex =
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/gm;
+
+        const found = password.match(regex);
+
+        if (!found) {
+            throw new ValidationError(
+                'Password must be 8 characters long, contain at least one uppercase letter, one lowercase letter, and one special character',
+            );
+        }
+
         const { error, errorFields } = validateData({
             requiredField,
             data: payload,

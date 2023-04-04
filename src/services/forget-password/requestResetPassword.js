@@ -13,8 +13,8 @@ const userRpo = new UsersRepository();
 export default async ({ email, platform }) => {
     if (!email) throw new ValidationError('Email is required!');
     if (!platform) throw new ValidationError('Platform is required!');
+
     platform = platform.toLowerCase();
-    console.log('platform', platform);
     if (platform !== 'website' && platform !== 'mobile') {
         throw new ValidationError(
             'Platform is invalid! Options available is "website" or "mobile"',
