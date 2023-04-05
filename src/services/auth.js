@@ -52,6 +52,14 @@ class AuthService {
         const { name, email, password, roles, phoneNumber } = payload;
         const requiredField = { name, email, password, roles, phoneNumber };
 
+        const { error, errorFields } = validateData({
+            requiredField,
+            data: payload,
+        });
+        if (error) {
+            throw new ValidationError(`${errorFields} is required!`);
+        }
+
         const regex =
             /^(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/gm;
 
@@ -61,14 +69,6 @@ class AuthService {
             throw new ValidationError(
                 'Password must be 8 characters long, contain at least one uppercase letter, one lowercase letter, and one special character',
             );
-        }
-
-        const { error, errorFields } = validateData({
-            requiredField,
-            data: payload,
-        });
-        if (error) {
-            throw new ValidationError(`${errorFields} is required!`);
         }
 
         const [isUserExist, hashedPassword] = await Promise.allSettled([
@@ -108,6 +108,7 @@ class AuthService {
                 subject,
                 template,
             );
+
             otpExpiredTime = otpExpired;
             // const userOTP = await this.otpRepo.findOne({ userId: user._id });
             // if (!userOTP) this.otpRepo.create(user._id, otp, otpExpired);
