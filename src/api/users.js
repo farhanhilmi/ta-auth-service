@@ -1,7 +1,9 @@
+import config from '../config/index.js';
 import AuthService from '../services/auth.js';
 import changePassword from '../services/forget-password/changePassword.js';
 import requestResetPassword from '../services/forget-password/requestResetPassword.js';
 import sendSms from '../services/sendSmsOtp.js';
+import { PublishMessage } from '../utils/messageBroker.js';
 
 // import userServices from '../services/index.js';
 export class UsersController {
@@ -70,9 +72,26 @@ export class UsersController {
         }
     }
 
+    // verify email after register
     async verifyOTP(req, res, next) {
         try {
             const data = await this.authService.verifyOTPEmail(req.body);
+
+            const dataMessage = {
+                data: {
+                    userId: req.body.userId,
+                },
+                event: 'VERIFY_NEW_ACCOUNT',
+            };
+            // publish message to queue
+            // service borrower akan subscribe ke queue ini
+            // dan akan membuat data borrower dan pekerjaan
+            PublishMessage(
+                this.channel,
+                config.RABBITMQ.CHANNEL.AUTH_SERVICE,
+                JSON.stringify(dataMessage),
+            );
+
             res.status(200).json({
                 status: 'OK',
                 message: 'success verified user email!',

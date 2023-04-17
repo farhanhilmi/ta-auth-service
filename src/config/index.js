@@ -35,6 +35,7 @@ const {
     FIREBASE_DEEP_LINK_DOMAIN_URI_PREFIX,
     DEEP_LINK_URL,
     ANDROID_PACKAGE_NAME,
+    EXCHANGE_NAME,
 } = process.env;
 
 const config = {
@@ -65,6 +66,14 @@ const config = {
     tokenExpires: {
         access: ACCESS_TOKEN_EXPIRES_IN,
         refresh: REFRESH_TOKEN_EXPIRES_IN,
+    },
+    RABBITMQ: {
+        URL: RABBITMQ_URL,
+        CHANNEL: {
+            BORROWER_SERVICE: 'borrower_service',
+            AUTH_SERVICE: 'auth_service',
+        },
+        EXCHANGE_NAME,
     },
     RABBITMQ_URL,
     DSN_SENTRY,
