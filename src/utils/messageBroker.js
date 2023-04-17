@@ -5,6 +5,10 @@ import config from '../config/index.js';
 export const CreateChannel = async () => {
     try {
         const connection = await amqplib.connect(config.RABBITMQ.URL);
+        connection.on('error', function (err) {
+            console.log('amqp connection error');
+            throw new Error(err);
+        });
         const channel = await connection.createChannel();
         await channel.assertQueue(config.RABBITMQ.EXCHANGE_NAME, 'direct', {
             durable: true,
