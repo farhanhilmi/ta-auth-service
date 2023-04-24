@@ -87,9 +87,11 @@ export class UsersController {
             // service borrower akan subscribe ke queue ini
             // dan akan membuat data borrower dan pekerjaan
             PublishMessage(
-                this.channel,
-                config.RABBITMQ.CHANNEL.AUTH_SERVICE,
-                JSON.stringify(dataMessage),
+                {
+                    userId: req.body.userId,
+                },
+                'VERIFY_NEW_ACCOUNT',
+                'Borrower',
             );
 
             res.status(200).json({

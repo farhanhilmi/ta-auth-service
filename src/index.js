@@ -4,7 +4,6 @@ import config from './config/index.js';
 import expressApp from './app.js';
 // import errorHandler from './utils/error/index.js';
 import { errorhandler } from './utils/errorhandler.js';
-import { CreateChannel } from './utils/messageBroker.js';
 
 const startServer = async () => {
     try {
@@ -15,9 +14,9 @@ const startServer = async () => {
         // await dbConnection();
 
         // const channel = 'ini test channel';
-        const channel = await CreateChannel();
+        // const channel = await CreateChannel();
 
-        const app = await expressApp(channel);
+        const app = await expressApp();
         // errorHandler(app);
         errorhandler(app);
 
