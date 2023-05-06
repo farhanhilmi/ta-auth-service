@@ -15,8 +15,8 @@
     },
     "scripts": {
         "test": "jest --coverage --detectOpenHandles",
-        "start": "node ./src/index.js",
-        "dev": "set NODE_ENV=development && nodemon ./src/index.js",
+        "start": "set NODE_ENV=production&& node ./src/index.js",
+        "dev": "set NODE_ENV=development&& nodemon ./src/index.js",
         "gcp-change": "gcloud config set project auth-service-p2p",
         "deploy": "gcloud app deploy"
     },

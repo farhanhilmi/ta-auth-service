@@ -1,10 +1,16 @@
 import dotenv from 'dotenv';
 
-// dotenv.config({
-//     path: path.resolve(__dirname, process.env.NODE_ENV + '.env')
-//   });
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+import path from 'path';
 
-dotenv.config();
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const env = `${process.env.NODE_ENV}.env`;
+
+console.log('process.env.NODE_ENV', env);
+dotenv.config({
+    path: join(__dirname, `../../${process.env.NODE_ENV}.env`),
+});
 
 const {
     APP_NAME,
@@ -30,7 +36,7 @@ const {
     SMS_OTP_KEY,
     SALT_FORGET_PASSWORD_TOKEN,
     CLIENT_REACT_APP_HOST,
-    NODE_ENV,
+
     FIREBASE_DEEP_LINK_URL,
     FIREBASE_DEEP_LINK_DOMAIN_URI_PREFIX,
     DEEP_LINK_URL,
@@ -43,6 +49,7 @@ const config = {
         port: PORT,
         host: HOST,
         name: APP_NAME,
+        env: process.env.NODE_ENV,
     },
     db: {
         uri: MONGODB_URI,
@@ -60,7 +67,6 @@ const config = {
         SMS_OTP_URL,
         SMS_OTP_KEY,
     },
-    NODE_ENV,
     REFRESH_TOKEN_PRIVATE_KEY,
     ACCESS_TOKEN_PRIVATE_KEY,
     tokenExpires: {
@@ -85,5 +91,8 @@ const config = {
     DEEP_LINK_URL,
     ANDROID_PACKAGE_NAME,
 };
+
+console.log(`NODE_ENV=${config.app.env}`);
+console.log('db', config.db.uri);
 
 export default config;
