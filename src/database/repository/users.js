@@ -44,6 +44,20 @@ class UsersRepository {
         return await Users.findByIdAndUpdate(id, payload, options).exec();
     }
 
+    async updatePasswordByUserId(
+        id,
+        newPassword,
+        salt,
+        options = { new: true },
+    ) {
+        const payload = { password: newPassword, salt };
+        return await Users.findOneAndUpdate(
+            { _id: id },
+            payload,
+            options,
+        ).exec();
+    }
+
     async updateVerifiedUser(id, verified, options = { new: true }) {
         return await Users.findByIdAndUpdate(id, { verified }, options).exec();
     }

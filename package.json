@@ -1,5 +1,5 @@
 {
-    "name": "users-service",
+    "name": "auth-service",
     "version": "1.0.0",
     "description": "",
     "main": "index.js",
@@ -15,8 +15,9 @@
     },
     "scripts": {
         "test": "jest --coverage --detectOpenHandles",
-        "start": "node ./src/index.js",
-        "dev": "$env:TC='Europe/Amsterdam' node src/index.js",
+        "start": "set NODE_ENV=production&& node ./src/index.js",
+        "dev": "set NODE_ENV=development&& nodemon ./src/index.js",
+        "gcp-change": "gcloud config set project auth-service-p2p",
         "deploy": "gcloud app deploy"
     },
     "keywords": [],
@@ -33,7 +34,9 @@
     "dependencies": {
         "@sentry/node": "^7.37.2",
         "@sentry/tracing": "^7.37.2",
+        "amqplib": "^0.10.3",
         "axios": "^1.3.4",
+        "bcrypt": "^5.1.0",
         "cors": "^2.8.5",
         "crypto": "^1.0.1",
         "dotenv": "^16.0.3",

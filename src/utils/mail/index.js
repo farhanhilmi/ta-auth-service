@@ -14,7 +14,7 @@ import {
  * @param {Object} data {recipient, subject, code}
  * @returns
  */
-export const sendMail = async (data) => {
+export const sendMail = async (data, template) => {
     // const { error } = validateSendEmail(data);
     if (!data.recipient) {
         throw new ValidationError('recipient email is required!');
@@ -31,7 +31,7 @@ export const sendMail = async (data) => {
         },
     });
 
-    const template = fs.readFileSync('./src/utils/mail/template.html', 'utf8');
+    // const template = fs.readFileSync('./src/utils/mail/template.html', 'utf8');
 
     const mailOptions = {
         from: {
@@ -47,20 +47,40 @@ export const sendMail = async (data) => {
     return true;
 };
 
-export const sendMailOTP = async (email) => {
+export const sendMailOTP = async (email, subject, template) => {
     const otp = generateRandomCode();
-    const dataMail = {
-        recipient: email,
-        subject: `Verify Your Email [P2P Lending Syariah]`,
-        code: otp,
-    };
 
     const otpExpired = dateFormatter(
         addMinutesToDate(new Date(), config.OTP_EXPIRED),
     );
-    console.log('OTP', { otp, otpExpired });
+    // console.log('OTP', { otp, otpExpired });
+    const dataMail = {
+        recipient: email,
+        // subject: `Verify Your Email [P2P Lending Syariah]`,
+        subject,
+        code: otp,
+        otpExpired: new Date(otpExpired),
+    };
 
-    await sendMail(dataMail);
-    console.log('OTP 2', { otp, otpExpired });
+    await sendMail(dataMail, template);
+    // console.log('OTP 2', { otp, otpExpired });
     return { otp, otpExpired };
+};
+
+export const sendMailRequestNewPassword = async (email, subject, link) => {
+    const dataMail = {
+        recipient: email,
+        // subject: `Verify Your Email [P2P Lending Syariah]`,
+        subject,
+        link,
+    };
+
+    const template = fs.readFileSync(
+        './src/utils/mail/template/forgetPassword.html',
+        'utf8',
+    );
+
+    await sendMail(dataMail, template);
+    console.log('MASOOKK');
+    return true;
 };

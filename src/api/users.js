@@ -1,5 +1,9 @@
+import config from '../config/index.js';
 import AuthService from '../services/auth.js';
+import changePassword from '../services/forget-password/changePassword.js';
+import requestResetPassword from '../services/forget-password/requestResetPassword.js';
 import sendSms from '../services/sendSmsOtp.js';
+import { PublishMessage } from '../utils/messageBroker.js';
 
 // import userServices from '../services/index.js';
 export class UsersController {
@@ -68,9 +72,28 @@ export class UsersController {
         }
     }
 
+    // verify email after register
     async verifyOTP(req, res, next) {
         try {
             const data = await this.authService.verifyOTPEmail(req.body);
+
+            const dataMessage = {
+                data: {
+                    userId: req.body.userId,
+                },
+                event: 'VERIFY_NEW_ACCOUNT',
+            };
+            // publish message to queue
+            // service borrower akan subscribe ke queue ini
+            // dan akan membuat data borrower dan pekerjaan
+            PublishMessage(
+                {
+                    userId: req.body.userId,
+                },
+                'VERIFY_NEW_ACCOUNT',
+                'Borrower',
+            );
+
             res.status(200).json({
                 status: 'OK',
                 message: 'success verified user email!',
@@ -81,16 +104,44 @@ export class UsersController {
         }
     }
 
-    async sendSmsOTP(req, res, next) {
+    async requestForgetPassword(req, res, next) {
         try {
-            const data = await sendSms(req.body.phoneNumber);
+            await requestResetPassword({
+                email: req.body.email,
+                platform: req.body.platform,
+            });
             res.status(200).json({
                 status: 'OK',
-                message: 'success sending sms verification code!',
+                message: 'Please check your email inbox',
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async forgetNewPassword(req, res, next) {
+        try {
+            const data = await changePassword(req.body);
+            res.status(200).json({
+                status: 'OK',
+                message: 'success change password',
                 data,
             });
         } catch (error) {
             next(error);
         }
     }
+
+    // async sendSmsOTP(req, res, next) {
+    //     try {
+    //         const data = await sendSms(req.body.phoneNumber);
+    //         res.status(200).json({
+    //             status: 'OK',
+    //             message: 'success sending sms verification code!',
+    //             data,
+    //         });
+    //     } catch (error) {
+    //         next(error);
+    //     }
+    // }
 }

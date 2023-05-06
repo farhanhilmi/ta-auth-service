@@ -1,6 +1,16 @@
 import dotenv from 'dotenv';
 
-dotenv.config();
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const env = `${process.env.NODE_ENV}.env`;
+
+console.log('process.env.NODE_ENV', env);
+dotenv.config({
+    path: join(__dirname, `../../${process.env.NODE_ENV}.env`),
+});
 
 const {
     APP_NAME,
@@ -24,6 +34,14 @@ const {
     SMS_OTP_HOST,
     SMS_OTP_URL,
     SMS_OTP_KEY,
+    SALT_FORGET_PASSWORD_TOKEN,
+    CLIENT_REACT_APP_HOST,
+
+    FIREBASE_DEEP_LINK_URL,
+    FIREBASE_DEEP_LINK_DOMAIN_URI_PREFIX,
+    DEEP_LINK_URL,
+    ANDROID_PACKAGE_NAME,
+    EXCHANGE_NAME,
 } = process.env;
 
 const config = {
@@ -31,6 +49,7 @@ const config = {
         port: PORT,
         host: HOST,
         name: APP_NAME,
+        env: process.env.NODE_ENV,
     },
     db: {
         uri: MONGODB_URI,
@@ -54,9 +73,26 @@ const config = {
         access: ACCESS_TOKEN_EXPIRES_IN,
         refresh: REFRESH_TOKEN_EXPIRES_IN,
     },
+    RABBITMQ: {
+        URL: RABBITMQ_URL,
+        CHANNEL: {
+            BORROWER_SERVICE: 'borrower_service',
+            AUTH_SERVICE: 'auth_service',
+        },
+        EXCHANGE_NAME,
+    },
     RABBITMQ_URL,
     DSN_SENTRY,
     OTP_EXPIRED,
+    SALT_FORGET_PASSWORD_TOKEN,
+    CLIENT_REACT_APP_HOST,
+    FIREBASE_DEEP_LINK_URL,
+    FIREBASE_DEEP_LINK_DOMAIN_URI_PREFIX,
+    DEEP_LINK_URL,
+    ANDROID_PACKAGE_NAME,
 };
+
+console.log(`NODE_ENV=${config.app.env}`);
+console.log('db', config.db.uri);
 
 export default config;

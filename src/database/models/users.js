@@ -36,6 +36,22 @@ const userSchema = new mongoose.Schema(
             default: false,
         },
         roles: roleOptions,
+        birthDate: {
+            type: String,
+            default: false,
+        },
+        idCardNumber: {
+            type: Number,
+            default: false,
+        },
+        idCardImage: {
+            type: String,
+            default: false,
+        },
+        faceImage: {
+            type: String,
+            default: false,
+        },
     },
     {
         timestamps: { createdAt: 'createdDate', updatedAt: 'modifyDate' },

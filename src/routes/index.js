@@ -21,10 +21,25 @@ const Routes = (channel) => {
         userController.verifyOTP.bind(userController),
     );
 
+    // FORGET PASSWORD ROUTE
     router.post(
-        '/otp/sms/send',
-        userController.sendSmsOTP.bind(userController),
+        '/password/reset/request',
+        userController.requestForgetPassword.bind(userController),
     );
+    router.post(
+        '/password/reset/change',
+        userController.forgetNewPassword.bind(userController),
+    );
+
+    // router.post(
+    //     '/otp/email/verify',
+    //     userController.verifyOTP.bind(userController),
+    // );
+
+    // router.post(
+    //     '/otp/sms/send',
+    //     userController.sendSmsOTP.bind(userController),
+    // );
 
     // TESTING ROUTE
     router.get('/test', controller.testApi.bind(controller));

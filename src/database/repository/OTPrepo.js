@@ -17,9 +17,24 @@ export default class OTPRepository {
         });
     }
 
-    async updateOTPByUserId(userId, { otp, expired }, options = { new: true }) {
-        const payload = { otp, expired };
-        return await this.model.updateOne({ userId }, payload, options);
+    async updateOTPByUserId(userId, { otp, expired }) {
+        // const payload = { otp, expired };
+        const query = { userId },
+            update = { otp, expired },
+            options = { upsert: true, new: true, setDefaultsOnInsert: true };
+
+        // Find the document
+        return await this.model.findOneAndUpdate(
+            query,
+            update,
+            options,
+            // function (error, result) {
+            //     if (error) return;
+
+            //     // do something with the document
+            // },
+        );
+        // return this.model.updateOne({ userId }, payload, options);
     }
 
     async deleteOTP(userId) {
