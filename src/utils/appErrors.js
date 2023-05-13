@@ -1,6 +1,9 @@
 export const STATUS_CODES = {
     OK: 200,
+    CREATED: 201,
+    VALIDATION_ERROR: 422,
     BAD_REQUEST: 400,
+    WRONG_CREDETENTIALS: 401, // invalid
     UN_AUTHORISED: 403,
     NOT_FOUND: 404,
     INTERNAL_ERROR: 500,
@@ -39,9 +42,20 @@ export class APIError extends BaseError {
 }
 
 // 400 Validation Error
+export class RequestError extends BaseError {
+    constructor(description = 'request error') {
+        super('request error', STATUS_CODES.BAD_REQUEST, description);
+    }
+}
 export class ValidationError extends BaseError {
-    constructor(description = 'bad request') {
-        super('bad request', STATUS_CODES.BAD_REQUEST, description);
+    constructor(description = 'validation error') {
+        super('validation error', STATUS_CODES.VALIDATION_ERROR, description);
+    }
+}
+
+export class CredentialsError extends BaseError {
+    constructor(description = 'not valid') {
+        super('not valid', STATUS_CODES.WRONG_CREDETENTIALS, description);
     }
 }
 

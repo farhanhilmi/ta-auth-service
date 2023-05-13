@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
-import { ValidationError } from '../../utils/appErrors.js';
+import { NotFoundError, ValidationError } from '../../utils/appErrors.js';
 
 import UsersRepository from '../../database/repository/users.js';
 import forgetTokenModel from '../../database/models/forgetToken.js';
@@ -22,7 +22,8 @@ export default async ({ email, platform }) => {
     }
 
     const user = await userRpo.findOne({ email });
-    if (!user) throw new ValidationError('User not found!');
+    if (!user)
+        throw new NotFoundError('We cannot find an account with that email');
 
     const passToken = await forgetTokenModel.findOne({ userId: user._id });
     if (passToken) await passToken.deleteOne();

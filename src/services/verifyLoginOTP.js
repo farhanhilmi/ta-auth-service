@@ -1,5 +1,9 @@
 import OTPRepository from '../database/repository/OTPrepo.js';
-import { ValidationError } from '../utils/appErrors.js';
+import {
+    CredentialsError,
+    RequestError,
+    ValidationError,
+} from '../utils/appErrors.js';
 import { dateFormatter, validateData } from '../utils/index.js';
 
 const otpRepo = new OTPRepository();
@@ -27,11 +31,11 @@ export default async (otp, userId) => {
     // console.log('dataOTP', dataOTP);
 
     if (newDate > dataOTP.expired) {
-        throw new ValidationError('OTP Code is expired');
+        throw new RequestError('OTP Code is expired');
     }
 
     if (otp != dataOTP?.otp) {
-        throw new ValidationError(
+        throw new CredentialsError(
             "OTP code doesn't match. Please check again!",
         );
     }

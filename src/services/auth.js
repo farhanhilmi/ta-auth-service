@@ -9,8 +9,10 @@ import {
 } from '../utils/index.js';
 import {
     AuthorizeError,
+    CredentialsError,
     DataConflictError,
     NotFoundError,
+    RequestError,
     ValidationError,
 } from '../utils/appErrors.js';
 import {
@@ -34,6 +36,12 @@ class AuthService {
 
     async getUserData(data) {
         const { userId, roles } = data;
+        if (!userId.match(/^[0-9a-fA-F]{24}$/)) {
+            // Yes, it's a valid ObjectId,
+            throw new ValidationError(
+                'userId is not valid!. Please check again',
+            );
+        }
         if (!userId || !roles) {
             throw new ValidationError('userId & roles is required!');
         }
@@ -112,6 +120,7 @@ class AuthService {
             otpExpiredTime = otpExpired;
             // const userOTP = await this.otpRepo.findOne({ userId: user._id });
             // if (!userOTP) this.otpRepo.create(user._id, otp, otpExpired);
+
             await this.otpRepo.updateOTPByUserId(user._id, {
                 otp,
                 expired: otpExpired,
@@ -124,6 +133,11 @@ class AuthService {
         const { email, password, otp } = payload;
         const requiredField = { email, password };
         const user = await this.usersRepo.findOne({ email }, { __v: 0 });
+
+        if (!user)
+            throw new NotFoundError(
+                'Your account is not registered. Please register your account first.',
+            );
 
         if (action?.toLowerCase() === 'login') {
             // await verifySmsOtp(user._id, otp);
@@ -141,12 +155,14 @@ class AuthService {
         if (error) {
             throw new ValidationError(`${errorFields} is required!`);
         }
-        if (!user) throw new NotFoundError('User not found!');
+
         if (!(await verifyPassword(password, user.password, user.salt))) {
             throw new AuthorizeError('Password incorrect!');
         }
 
         if (!user.verified)
+            // *TODO : send otp to email and link to verify account page
+
             throw new AuthorizeError('Your email is not verified!');
 
         // function addMinutes(date, minutes) {
@@ -198,14 +214,26 @@ class AuthService {
         if (error) {
             throw new ValidationError(`${errorFields} is required!`);
         }
+
+        if (!userId.match(/^[0-9a-fA-F]{24}$/)) {
+            // Yes, it's a valid ObjectId,
+            throw new ValidationError(
+                'userId is not valid!. Please check again',
+            );
+        }
+
         const user = await this.usersRepo.findOne({ _id: userId });
+        // check if data not found
+        if (!user) {
+            throw new NotFoundError('Account with this userId not found!');
+        }
         if (user?.verified) {
-            throw new ValidationError('Sudah terverifikasi');
+            throw new DataConflictError('Your account already verified!');
         }
         const dataOTP = await this.otpRepo.findOne({ userId });
 
         if (otp != dataOTP?.otp) {
-            throw new ValidationError(
+            throw new CredentialsError(
                 "OTP code doesn't match. Please check again!",
             );
         }
@@ -213,9 +241,7 @@ class AuthService {
         await this.usersRepo.updateVerifiedUser(userId, true);
 
         return formatData({
-            success: true,
-            otp: dataOTP.otp,
-            otp_input: otp,
+            verified: true,
         });
     }
 
@@ -226,7 +252,8 @@ class AuthService {
         const refreshToken = await this.refreshTokenRepo.findOne({
             refreshToken: token,
         });
-        if (!refreshToken) throw new NotFoundError('Data not found!');
+        if (!refreshToken)
+            throw new NotFoundError('We cannot find your token!');
 
         const result = await verifyRefreshToken(token);
 

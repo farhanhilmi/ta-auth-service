@@ -3,7 +3,7 @@ import dbConnection from './database/connection.js';
 import config from './config/index.js';
 import expressApp from './app.js';
 // import errorHandler from './utils/error/index.js';
-import { errorhandler } from './utils/errorhandler.js';
+// import { errorhandler } from './utils/errorhandler.js';
 
 const startServer = async () => {
     try {
@@ -18,21 +18,26 @@ const startServer = async () => {
 
         const app = await expressApp();
         // errorHandler(app);
-        errorhandler(app);
+        // errorhandler(app);
 
+        // API ENDPOINT NOT FOUND
         app.use((req, res, next) => {
             const error = new Error("API endpoint doesn't exist!");
-            error.status = 404;
+            error.statusCode = 404;
+            error.status = 'Not Found';
             next(error);
         });
 
         // error handler middleware
         app.use((error, req, res, _) => {
-            console.log('API ERROR', error);
-            res.status(error.status || 500).json({
-                success: false,
+            console.log('error', error);
+            const message = !error.statusCode
+                ? 'Internal Server Error'
+                : error.message;
+            res.status(error.statusCode || 500).json({
+                status: !error.statusCode ? 'Internal Server Error' : false,
                 data: [],
-                message: error.message || 'Internal Server Error',
+                message,
             });
         });
 

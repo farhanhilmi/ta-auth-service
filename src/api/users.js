@@ -20,7 +20,7 @@ export class UsersController {
             const data = await this.authService.getUserData({ userId, roles });
 
             res.status(200).json({
-                status: 'OK',
+                status: true,
                 message: 'success fetching data',
                 data,
             });
@@ -34,7 +34,7 @@ export class UsersController {
             const data = await this.authService.createAccount(req.body);
             // const data = await this.authService.createAccount(req.body);
             res.status(201).json({
-                status: 'OK',
+                status: true,
                 message: 'success create new account',
                 data,
             });
@@ -48,7 +48,7 @@ export class UsersController {
         try {
             const data = await this.authService.login(req.body, action);
             res.status(200).json({
-                status: 'OK',
+                status: true,
                 message: 'success logged in',
                 data,
             });
@@ -63,7 +63,7 @@ export class UsersController {
                 token: req.body.refreshToken,
             });
             res.status(200).json({
-                status: 'OK',
+                status: true,
                 message: 'success generate new access token',
                 data,
             });
@@ -95,7 +95,7 @@ export class UsersController {
             );
 
             res.status(200).json({
-                status: 'OK',
+                status: true,
                 message: 'success verified user email!',
                 data,
             });
@@ -111,7 +111,7 @@ export class UsersController {
                 platform: req.body.platform,
             });
             res.status(200).json({
-                status: 'OK',
+                status: true,
                 message: 'Please check your email inbox',
             });
         } catch (error) {
@@ -123,7 +123,7 @@ export class UsersController {
         try {
             const data = await changePassword(req.body);
             res.status(200).json({
-                status: 'OK',
+                status: true,
                 message: 'success change password',
                 data,
             });
@@ -136,7 +136,7 @@ export class UsersController {
     //     try {
     //         const data = await sendSms(req.body.phoneNumber);
     //         res.status(200).json({
-    //             status: 'OK',
+    //             status: true,
     //             message: 'success sending sms verification code!',
     //             data,
     //         });

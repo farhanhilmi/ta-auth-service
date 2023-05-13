@@ -1,4 +1,8 @@
-import { NotFoundError, ValidationError } from '../../utils/appErrors.js';
+import {
+    CredentialsError,
+    NotFoundError,
+    ValidationError,
+} from '../../utils/appErrors.js';
 import { formatData, hashPassword } from '../../utils/index.js';
 import UsersRepository from '../../database/repository/users.js';
 import forgetToken from '../../database/models/forgetToken.js';
@@ -11,14 +15,14 @@ export default async (payload) => {
     if (!newPassword) throw new ValidationError('New Password is required!');
 
     const user = await userRepo.findOne({ email });
-    if (!user) throw new NotFoundError('User not found');
+    if (!user) throw new NotFoundError('User with this email not found!');
     const passwordResetToken = await forgetToken.findOne({
         userId: user._id,
     });
     const isValid = await bcrypt.compare(token, passwordResetToken.token);
 
     if (!isValid) {
-        throw new ValidationError('Invalid or expired password reset token');
+        throw new CredentialsError('Invalid or expired password reset token');
     }
 
     const hash = await hashPassword(newPassword);
