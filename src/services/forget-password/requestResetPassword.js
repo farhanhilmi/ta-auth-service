@@ -34,10 +34,18 @@ export default async ({ email, platform }) => {
         Number(config.SALT_FORGET_PASSWORD_TOKEN),
     );
 
-    await new forgetTokenModel({
-        userId: user._id,
-        token: hash,
-    }).save();
+    const forgetPass = await forgetTokenModel.findOne({ userId: user._id });
+    if (forgetPass) {
+        forgetTokenModel.findByIdAndUpdate(
+            { userId: user._id },
+            { token: hash },
+        );
+    } else {
+        await new forgetTokenModel({
+            userId: user._id,
+            token: hash,
+        }).save();
+    }
 
     let link = `${config.CLIENT_REACT_APP_HOST}/reset-password/${resetToken}/${user._id}`;
 

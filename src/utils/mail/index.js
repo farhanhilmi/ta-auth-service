@@ -2,7 +2,7 @@ import fs from 'fs';
 import nodemailer from 'nodemailer';
 import mustache from 'mustache';
 import config from '../../config/index.js';
-import { APIError, ValidationError } from '../appErrors.js';
+import { ValidationError } from '../appErrors.js';
 import {
     addMinutesToDate,
     generateRandomCode,
@@ -77,6 +77,24 @@ export const sendMailRequestNewPassword = async (email, subject, link) => {
 
     const template = fs.readFileSync(
         './src/utils/mail/template/forgetPassword.html',
+        'utf8',
+    );
+
+    await sendMail(dataMail, template);
+    console.log('MASOOKK');
+    return true;
+};
+
+export const sendMailVerification = async (email, subject, link) => {
+    const dataMail = {
+        recipient: email,
+        // subject: `Verify Your Email [P2P Lending Syariah]`,
+        subject,
+        link,
+    };
+
+    const template = fs.readFileSync(
+        './src/utils/mail/template/verifyAccountLink.html',
         'utf8',
     );
 

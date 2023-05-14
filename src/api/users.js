@@ -35,7 +35,26 @@ export class UsersController {
             // const data = await this.authService.createAccount(req.body);
             res.status(201).json({
                 status: true,
-                message: 'success create new account',
+                message:
+                    'We have sent you an email verification link. Please check your email to verify your account.',
+                data,
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async verifyEmailAccount(req, res, next) {
+        try {
+            const { userId, token } = req.params;
+            const data = await this.authService.verifyEmailAccount(
+                userId,
+                token,
+            );
+            // const data = await this.authService.createAccount(req.body);
+            res.status(200).json({
+                status: true,
+                message: 'Success verified email',
                 data,
             });
         } catch (error) {

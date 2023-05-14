@@ -63,4 +63,19 @@ const userSchema = new mongoose.Schema(
 //     return moment.tz(this.sentTime, 'Asia/Jakarta').format();
 // });
 
+// Duplicate the ID field.
+userSchema.virtual('userId').get(function () {
+    return this._id.toHexString();
+});
+
+// userSchema.method('toClient', function () {
+//     var obj = this.toObject();
+
+//     //Rename fields
+//     obj.userId = obj._id;
+//     delete obj._id;
+
+//     return obj;
+// });
+
 export default mongoose.model('Users', userSchema);

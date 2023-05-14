@@ -17,9 +17,14 @@ const Routes = (channel) => {
     );
 
     router.post(
-        '/otp/email/verify',
-        userController.verifyOTP.bind(userController),
+        '/verification/email/:userId/:token',
+        userController.verifyEmailAccount.bind(userController),
     );
+
+    // router.post(
+    //     '/otp/email/verify',
+    //     userController.verifyOTP.bind(userController),
+    // );
 
     // FORGET PASSWORD ROUTE
     router.post(

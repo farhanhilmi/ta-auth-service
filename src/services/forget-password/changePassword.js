@@ -32,8 +32,10 @@ export default async (payload) => {
         hash,
         salt,
     );
+    await forgetToken.deleteMany({ userId: user._id });
+
     return formatData({
-        _id: updatedUser._id,
+        userId: updatedUser._id,
         email: updatedUser.email,
         roles: updatedUser.roles,
         name: updatedUser.name,

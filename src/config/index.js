@@ -42,6 +42,8 @@ const {
     DEEP_LINK_URL,
     ANDROID_PACKAGE_NAME,
     EXCHANGE_NAME,
+    API_GATEWAY_URL,
+    SALT_VERIFICATION_EMAIL_TOKEN,
 } = process.env;
 
 const config = {
@@ -90,6 +92,8 @@ const config = {
     FIREBASE_DEEP_LINK_DOMAIN_URI_PREFIX,
     DEEP_LINK_URL,
     ANDROID_PACKAGE_NAME,
+    API_GATEWAY_URL,
+    SALT_VERIFICATION_EMAIL_TOKEN,
 };
 
 console.log(`NODE_ENV=${config.app.env}`);

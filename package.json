@@ -17,7 +17,7 @@
         "test": "jest --coverage --detectOpenHandles",
         "start": "set NODE_ENV=production&& node ./src/index.js",
         "dev": "set NODE_ENV=development&& nodemon ./src/index.js",
-        "gcp-change": "gcloud config set project auth-service-p2p",
+        "gcp-change": "gcloud config set project ta-auth-service",
         "deploy": "gcloud app deploy"
     },
     "keywords": [],
