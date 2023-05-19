@@ -12,10 +12,19 @@ const Routes = (channel) => {
     router.post('/register', userController.register.bind(userController));
     router.post('/login', userController.login.bind(userController));
     router.post(
+        '/login/otp/resend',
+        userController.resendOTPLogin.bind(userController),
+    );
+
+    router.post(
         '/token/refresh',
         userController.refreshToken.bind(userController),
     );
 
+    router.post(
+        '/verification/email/:userId/resend',
+        userController.resendVerifyAccount.bind(userController),
+    );
     router.post(
         '/verification/email/:userId/:token',
         userController.verifyEmailAccount.bind(userController),

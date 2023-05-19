@@ -34,6 +34,7 @@ import config from '../config/index.js';
 import { generateDynamicLink } from '../utils/firebase.js';
 import forgetToken from '../database/models/forgetToken.js';
 import verifyToken from '../database/models/verifyToken.js';
+import { sendOTPLogin, sendVerifyAccount } from './mail/sendEmail.js';
 
 class AuthService {
     constructor() {
@@ -114,39 +115,27 @@ class AuthService {
         // let otpExpiredTime;
 
         if (user) {
-            // const template = fs.readFileSync(
-            //     './src/utils/mail/template/verifyAccountLink.html',
-            //     'utf8',
+            await sendVerifyAccount(user);
+            // const tokenVerify = crypto.randomBytes(32).toString('hex');
+            // const hash = await bcrypt.hash(
+            //     tokenVerify,
+            //     Number(config.SALT_VERIFICATION_EMAIL_TOKEN),
             // );
-            const tokenVerify = crypto.randomBytes(32).toString('hex');
-            const hash = await bcrypt.hash(
-                tokenVerify,
-                Number(config.SALT_VERIFICATION_EMAIL_TOKEN),
-            );
 
-            const subject = `Verify Your Email [P2P Lending Syariah]`;
-            const link = `${config.CLIENT_REACT_APP_HOST}/authentication/verification/email/${user._id}/${tokenVerify}`;
+            // const subject = `Verify Your Email [P2P Lending Syariah]`;
+            // const link = `${config.CLIENT_REACT_APP_HOST}/authentication/verification/email/${user._id}/${tokenVerify}`;
 
-            sendMailVerification(email, subject, link);
+            // sendMailVerification(email, subject, link);
 
-            const verify = await verifyToken.findOne({ userId: user._id });
-            if (verify) {
-                verifyToken.findOneAndUpdate({ userId: _id }, { token: hash });
-            } else {
-                await new verifyToken({
-                    userId: user._id,
-                    token: hash,
-                }).save();
-            }
-
-            // otpExpiredTime = otpExpired;
-            // const userOTP = await this.otpRepo.findOne({ userId: user._id });
-            // if (!userOTP) this.otpRepo.create(user._id, otp, otpExpired);
-
-            // await this.otpRepo.updateOTPByUserId(user._id, {
-            //     otp,
-            //     expired: otpExpired,
-            // });
+            // const verify = await verifyToken.findOne({ userId: user._id });
+            // if (verify) {
+            //     verifyToken.findOneAndUpdate({ userId: _id }, { token: hash });
+            // } else {
+            //     await new verifyToken({
+            //         userId: user._id,
+            //         token: hash,
+            //     }).save();
+            // }
         }
         delete Object.assign(user, { ['userId']: user['_id'] })['_id'];
         return formatData({ ...user });
@@ -164,6 +153,12 @@ class AuthService {
         }
 
         const user = await this.usersRepo.findById(userId);
+        if (!user) {
+            throw new CredentialsError(
+                'Invalid or verification link is expired.',
+            );
+        }
+
         if (user.verified) {
             throw new DataConflictError('Your account already verified');
         }
@@ -200,7 +195,26 @@ class AuthService {
     }
 
     async login(payload, action = false) {
+        if (action !== 'login') {
+            if (
+                !Object.hasOwn(payload, 'email') ||
+                !Object.hasOwn(payload, 'password')
+            ) {
+                throw new ValidationError(
+                    'Body must be contain email and password',
+                );
+            }
+        } else {
+            if (
+                !Object.hasOwn(payload, 'email') ||
+                !Object.hasOwn(payload, 'otp')
+            ) {
+                throw new ValidationError('Body must be contain email and otp');
+            }
+        }
+
         const { email, password, otp } = payload;
+
         const requiredField = { email, password };
         const user = await this.usersRepo.findOne({ email }, { __v: 0 });
 
@@ -209,51 +223,26 @@ class AuthService {
                 'Your account is not registered. Please register your account first.',
             );
 
-        // *TODO: check if user has been verified and send verification email link
+        // check if user has been verified and send verification email link
         if (!user.verified) {
-            const tokenVerify = crypto.randomBytes(32).toString('hex');
-            const hash = await bcrypt.hash(
-                tokenVerify,
-                Number(config.SALT_VERIFICATION_EMAIL_TOKEN),
-            );
-
-            const verify = await verifyToken.findOne({ userId: user._id });
-            if (verify) {
-                verifyToken.findOneAndUpdate({ userId: _id }, { token: hash });
-            } else {
-                await new verifyToken({
-                    userId: user._id,
-                    token: hash,
-                }).save();
-            }
-
-            const link = `${config.CLIENT_REACT_APP_HOST}/authentication/verification/email/${user._id}/${tokenVerify}`;
-
-            // if (platform === 'mobile') {
-            //     const dynamicLink = await generateDynamicLink(
-            //         resetToken,
-            //         user._id,
-            //     );
-            //     link = dynamicLink.shortLink;
-            // }
-
-            const subject = 'Verify Your Email [P2P Lending Syariah]';
-            sendMailVerification(email, subject, link);
-
+            await sendVerifyAccount(user);
             throw new AuthorizeError(
                 'Your email is not verified!. We have sent you an email verification link. Please check your email to verify your account.',
             );
         }
 
+        // execute this after user receive email OTP CODE
         if (action?.toLowerCase() === 'login') {
-            // await verifySmsOtp(user._id, otp);
             await verifyLoginOTP(otp, user._id);
             const { accessToken, refreshToken } = await generateTokens(user);
             await this.refreshTokenRepo.create(user._id, refreshToken);
-
-            return formatData({ accessToken, refreshToken });
+            return formatData({
+                data: { accessToken, refreshToken },
+                message: 'Login success',
+            });
         }
 
+        // execute this if user login with email and password before receive email OTP CODE
         const { error, errorFields } = validateData({
             requiredField,
             data: payload,
@@ -266,90 +255,16 @@ class AuthService {
             throw new AuthorizeError('Password incorrect!');
         }
 
-        if (!user.verified)
-            // *TODO : send otp to email and link to verify account page
-
-            throw new AuthorizeError('Your email is not verified!');
-
-        // function addMinutes(date, minutes) {
-        //     return new Date(date.getTime() + minutes * 60000);
-        // }
-        // const jaja = addMinutes(new Date(), 5);
-
         if (action?.toLowerCase() === 'email-otp') {
-            const template = fs.readFileSync(
-                './src/utils/mail/template/verifyOTP.html',
-                'utf8',
-            );
-            const subject = `[P2P Lending Syariah] Login Verification Code`;
-            const { otp, otpExpired } = await sendMailOTP(
-                email,
-                subject,
-                template,
-            );
-            // const userOTP = await this.otpRepo.findOne({ userId: user._id });
-            // if (!userOTP) {
-            //     this.otpRepo.create(user._id, otp, otpExpired);
-            // }
-            // if (userOTP)
-            await this.otpRepo.updateOTPByUserId(user._id, {
-                otp,
-                expired: otpExpired,
-            });
-            // }
-            // console.log('otpExpired', otpExpired.);
-
-            // const otpExpired = await sendSmsOtp(user._id, user.phoneNumber);
+            const otpExpired = await sendOTPLogin(user);
             return formatData({
-                userId: user._id,
-                otpExpired,
-                email,
+                data: {
+                    userId: user._id,
+                    otpExpired,
+                },
+                message: 'OTP has been sent to your email',
             });
         }
-    }
-
-    // verify email account after regis
-    async verifyOTPEmail(payload) {
-        const { otp, userId } = payload;
-        const requiredField = { otp, userId };
-
-        const { error, errorFields } = validateData({
-            requiredField,
-            data: payload,
-        });
-
-        if (error) {
-            throw new ValidationError(`${errorFields} is required!`);
-        }
-
-        if (!userId.match(/^[0-9a-fA-F]{24}$/)) {
-            // Yes, it's a valid ObjectId,
-            throw new ValidationError(
-                'userId is not valid!. Please check again',
-            );
-        }
-
-        const user = await this.usersRepo.findOne({ _id: userId });
-        // check if data not found
-        if (!user) {
-            throw new NotFoundError('Account with this userId not found!');
-        }
-        if (user?.verified) {
-            throw new DataConflictError('Your account already verified!');
-        }
-        const dataOTP = await this.otpRepo.findOne({ userId });
-
-        if (otp != dataOTP?.otp) {
-            throw new CredentialsError(
-                "OTP code doesn't match. Please check again!",
-            );
-        }
-        await this.otpRepo.deleteOTP(userId);
-        await this.usersRepo.updateVerifiedUser(userId, true);
-
-        return formatData({
-            verified: true,
-        });
     }
 
     async refreshToken(payload) {

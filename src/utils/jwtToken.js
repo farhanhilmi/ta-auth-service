@@ -5,7 +5,11 @@ import { AuthorizeError } from './appErrors.js';
 
 export const generateTokens = async (user) => {
     try {
-        const payload = { userId: user._id.toString(), roles: user.roles };
+        const payload = {
+            userId: user._id.toString(),
+            roles: user.roles,
+            verified: user.verified,
+        };
         const accessToken = jwt.sign(payload, config.ACCESS_TOKEN_PRIVATE_KEY, {
             expiresIn: config.tokenExpires.access,
         });
@@ -39,7 +43,11 @@ export const verifyRefreshToken = (token) => {
 
 export const regenerateAccessToken = async (user) => {
     try {
-        const payload = { userId: user._id.toString(), roles: user.roles };
+        const payload = {
+            userId: user._id.toString(),
+            roles: user.roles,
+            verified: user.verified,
+        };
         const accessToken = jwt.sign(payload, config.ACCESS_TOKEN_PRIVATE_KEY, {
             expiresIn: config.tokenExpires.access,
         });
