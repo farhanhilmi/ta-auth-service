@@ -40,6 +40,10 @@ const userSchema = new mongoose.Schema(
             type: String,
             default: false,
         },
+        gender: {
+            type: String,
+            default: false,
+        },
         idCardNumber: {
             type: Number,
             default: false,

@@ -191,7 +191,10 @@ class AuthService {
 
         await verifyToken.deleteMany({ userId });
 
-        return { email: updatedUser.email, userId: updatedUser._id };
+        return {
+            data: { email: updatedUser.email, userId: updatedUser._id },
+            roles: updatedUser.roles,
+        };
     }
 
     async login(payload, action = false) {

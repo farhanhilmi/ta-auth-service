@@ -70,10 +70,29 @@ export class UsersController {
     async verifyEmailAccount(req, res, next) {
         try {
             const { userId, token } = req.params;
-            const data = await this.authService.verifyEmailAccount(
+            const { data, roles } = await this.authService.verifyEmailAccount(
                 userId,
                 token,
             );
+            console.log('roles', roles);
+            if (roles.toLowerCase() === 'borrower') {
+                PublishMessage(
+                    {
+                        userId,
+                    },
+                    'VERIFY_NEW_ACCOUNT',
+                    'Borrower',
+                );
+            }
+            if (roles.toLowerCase() === 'lender') {
+                PublishMessage(
+                    {
+                        userId,
+                    },
+                    'VERIFY_NEW_ACCOUNT',
+                    'Lender',
+                );
+            }
             // PublishMessage(
             //     {
             //         userId: req.body.userId,
