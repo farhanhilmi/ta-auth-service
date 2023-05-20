@@ -31,28 +31,18 @@ import config from '../config/index.js';
 //     }
 // };
 
-export const PublishMessage = async (data, event, routingKey) => {
+export const PublishMessage = async (data, event, queueName) => {
     try {
         const connection = await amqplib.connect(config.RABBITMQ.URL);
         const channel = await connection.createChannel();
-        const exchangeName = 'my_exchange';
-        const exchangeType = 'direct';
-        // await channel.assertExchange(exchangeName, exchangeType, {
-        //     durable: true,
-        // });
-        // const queueName = 'my_queue';
-        await channel.assertQueue(exchangeName, 'direct', { durable: true });
-        // await channel.assertQueue(queueName, { durable: true });
-        // await channel.bindQueue(queueName, exchangeName, '');
+
+        await channel.assertQueue(queueName, { durable: true });
         const msg = {
             data,
             event,
         };
-        await channel.publish(
-            exchangeName,
-            routingKey,
-            Buffer.from(JSON.stringify(msg)),
-        );
+        channel.sendToQueue(queueName, Buffer.from(JSON.stringify(msg)));
+
         console.log(`Sent message: ${JSON.stringify(msg)}`);
         await channel.close();
         await connection.close();

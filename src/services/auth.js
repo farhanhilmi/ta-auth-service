@@ -1,9 +1,7 @@
-import fs from 'fs';
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import UsersRepository from '../database/repository/users.js';
 import {
-    dateFormatter,
     formatData,
     hashPassword,
     validateData,
@@ -23,11 +21,7 @@ import {
     verifyRefreshToken,
 } from '../utils/jwtToken.js';
 import RefreshTokenRepository from '../database/repository/refreshTokenRepo.js';
-import {
-    sendMailOTP,
-    sendMailRequestNewPassword,
-    sendMailVerification,
-} from '../utils/mail/index.js';
+import { sendMailRequestNewPassword } from '../utils/mail/index.js';
 import OTPRepository from '../database/repository/OTPrepo.js';
 import verifyLoginOTP from './verifyLoginOTP.js';
 import config from '../config/index.js';
@@ -116,26 +110,6 @@ class AuthService {
 
         if (user) {
             await sendVerifyAccount(user);
-            // const tokenVerify = crypto.randomBytes(32).toString('hex');
-            // const hash = await bcrypt.hash(
-            //     tokenVerify,
-            //     Number(config.SALT_VERIFICATION_EMAIL_TOKEN),
-            // );
-
-            // const subject = `Verify Your Email [P2P Lending Syariah]`;
-            // const link = `${config.CLIENT_REACT_APP_HOST}/authentication/verification/email/${user._id}/${tokenVerify}`;
-
-            // sendMailVerification(email, subject, link);
-
-            // const verify = await verifyToken.findOne({ userId: user._id });
-            // if (verify) {
-            //     verifyToken.findOneAndUpdate({ userId: _id }, { token: hash });
-            // } else {
-            //     await new verifyToken({
-            //         userId: user._id,
-            //         token: hash,
-            //     }).save();
-            // }
         }
         delete Object.assign(user, { ['userId']: user['_id'] })['_id'];
         return formatData({ ...user });
@@ -143,7 +117,7 @@ class AuthService {
 
     async verifyEmailAccount(userId, token) {
         if (!userId || !token) {
-            throw new RequestError('Bad Request');
+            throw new RequestError('userId & token is required!');
         }
         if (!userId.match(/^[0-9a-fA-F]{24}$/)) {
             // Yes, it's a valid ObjectId,
@@ -151,7 +125,6 @@ class AuthService {
                 'userId is not valid!. Please check again',
             );
         }
-
         const user = await this.usersRepo.findById(userId);
         if (!user) {
             throw new CredentialsError(
@@ -175,6 +148,7 @@ class AuthService {
                 'Invalid or verification link is expired.',
             );
         }
+        // const isValid = token === verify.token;
         const isValid = await bcrypt.compare(token, verify.token);
 
         if (!isValid) {
@@ -304,13 +278,13 @@ class AuthService {
             );
         }
 
-        const user = await userRpo.findOne({ email });
+        const user = await this.usersRepo.findOne({ email });
         if (!user)
             throw new NotFoundError(
                 'We cannot find an account with that email',
             );
 
-        const passToken = await forgetTokenModel.findOne({ userId: user._id });
+        const passToken = await forgetToken.findOne({ userId: user._id });
         if (passToken) await passToken.deleteOne();
 
         let resetToken = crypto.randomBytes(32).toString('hex');
@@ -319,14 +293,14 @@ class AuthService {
             Number(config.SALT_FORGET_PASSWORD_TOKEN),
         );
 
-        const forgetPass = await forgetTokenModel.findOne({ userId: user._id });
+        const forgetPass = await forgetToken.findOne({ userId: user._id });
         if (forgetPass) {
-            forgetTokenModel.findByIdAndUpdate(
+            forgetToken.findByIdAndUpdate(
                 { userId: user._id },
                 { token: hash },
             );
         } else {
-            await new forgetTokenModel({
+            await new forgetToken({
                 userId: user._id,
                 token: hash,
             }).save();

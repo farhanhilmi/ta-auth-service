@@ -4,13 +4,33 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import path from 'path';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const env = `${process.env.NODE_ENV}.env`;
+const NODE_ENV = process.env.NODE_ENV;
+const env = `${NODE_ENV}.env`;
+console.log('current env:', env);
 
-console.log('process.env.NODE_ENV', env);
+// const checkEnv = (ENV) => {
+//     if (ENV === 'test') {
+//         return '../../development.env';
+//     } else {
+//         return dirname(fileURLToPath(import.meta.url));
+//     }
+// };
+
+// dotenv.config({
+//     path: join(checkEnv(NODE_ENV), `../../${env}`),
+// })
+
+// if (NODE_ENV === 'test') {
+//     dotenv.config({
+//         path: join('../../development.env'),
+//     });
+// } else {
+const basedir = path.resolve(process.cwd());
+// const __dirname = dirname(fileURLToPath(import.meta.url));
 dotenv.config({
-    path: join(__dirname, `../../${process.env.NODE_ENV}.env`),
+    path: join(basedir, `${NODE_ENV}.env`),
 });
+// }
 
 const {
     APP_NAME,

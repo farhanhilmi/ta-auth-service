@@ -1,5 +1,6 @@
 import mongoose, { set } from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import { MongoClient } from 'mongodb';
 
 mongoose.promise = global.Promise;
 
@@ -10,18 +11,30 @@ const opts = {
     useUnifiedTopology: true,
 };
 
+// get db
+const getDB = async () => {
+    if (!mongoServer) {
+        mongoServer = await MongoMemoryServer.create();
+    }
+    const client = await MongoClient.connect(mongoServer.getUri(), opts);
+    const db = client.db(mongoServer.instanceInfo.dbName);
+    return db;
+};
+
 const connect = async () => {
-    set('strictQuery', false);
-    await mongoose.disconnect();
+    try {
+        set('strictQuery', false);
+        await mongoose.disconnect();
 
-    mongoServer = await MongoMemoryServer.create();
+        mongoServer = await MongoMemoryServer.create();
+        // const client = await MongoClient.connect(mongoServer.getUri(), opts);
+        // const db = client.db(mongoServer.instanceInfo.dbName);
 
-    const mongoUri = await mongoServer.getUri();
-    await mongoose.connect(mongoUri, opts, (err) => {
-        if (err) {
-            console.error(err);
-        }
-    });
+        const mongoUri = await mongoServer.getUri();
+        await mongoose.connect(mongoUri, opts);
+    } catch (error) {
+        console.log('ERORR', error);
+    }
 };
 
 const close = async () => {
@@ -42,4 +55,5 @@ export default {
     connect,
     close,
     clear,
+    getDB,
 };
